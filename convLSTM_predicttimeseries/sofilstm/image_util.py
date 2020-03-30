@@ -190,8 +190,8 @@ class ImageDataProvider_hdf5_vol(BaseDataProvider):
             data = self._load_file_mat(os.path.join(self.image_name, self.holoname+'.mat'), self.holoname)
             label = self._load_file_mat(os.path.join(self.image_name, self.gtname+'.mat'), self.gtname)
             if(not(self.mysize is None)):
-                data = nip.extract(nip.image(data), (self.mysize[0],self.mysize[1],data.shape[-1]))
-                label = nip.extract(nip.image(label), (self.mysize[0]*2, self.mysize[1]*2))
+                data = nip.extract(nip.image(data), (self.mysize[0]//2,self.mysize[1]//2, data.shape[-1]))
+                label = nip.extract(nip.image(label), (self.mysize[0], self.mysize[1]))
 
         data = self._process_data(data)
         label = self._process_truths(label)
@@ -226,6 +226,10 @@ class ImageDataProvider_hdf5_vol(BaseDataProvider):
     def _process_data(self, data):
         #print('Preprocessing data (normalizing)')
         #data = np.clip(np.fabs(data), self.a_min, self.a_max)
+        #data = nip.resample(data, factors=[2., 2., 1.])
+        from skimage.transform import resize
+        Nx, Ny, Nz =  data.shape
+        data = resize(data, (Nx*2, Nx*2, Nz))
         data -= np.min(data)
         data = data/np.max(data)
         #data -= .5

@@ -47,7 +47,8 @@ def mse_array(array_x, array_y, size):
     inv_size = tf.to_float(1/size)
     return tf.scalar_mul(inv_size, se)
 
-def conv2d_bn_relu(x, w_size, num_outputs, keep_prob_, phase, scope): # output size should be the same.
+
+def conv2d_bn_relu_(x, w_size, num_outputs, keep_prob_, phase, scope): # output size should be the same.
     conv_2d = tf.contrib.layers.conv2d(x, num_outputs, w_size,
                                         activation_fn=tf.nn.relu,   # elu is an alternative
                                         normalizer_fn=tf.layers.batch_normalization,
@@ -56,88 +57,44 @@ def conv2d_bn_relu(x, w_size, num_outputs, keep_prob_, phase, scope): # output s
 
     return tf.nn.dropout(conv_2d, keep_prob_)
 
-def deconv2d_bn_relu_res(x, w_size, num_outputs, stride, keep_prob_, phase, scope):
-    # this is very likely responssible for the checkerboard
-    # remove checkerboard artifact have a look at the distill paper"
-    _b, h, w, _c = x.shape
-    initializer = tf.random_normal_initializer(0, 0.02)
-    resized_input = tf.image.resize_images(x, [h * 2, w * 2], method=tf.image.ResizeMethod.BILINEAR)
-    conv_2d = tf.layers.separable_conv2d(resized_input, num_outputs,
-                                        kernel_size=w_size,
-                                        strides=stride,
-                                        padding="same",
-                                        depthwise_initializer=initializer,
-                                        pointwise_initializer=initializer)\
-                                        #, scope = scope)
-    return tf.nn.dropout(conv_2d, keep_prob_)
-
-
-
-def deconv2d_bn_relu(x, w_size, num_outputs, stride, keep_prob_, phase, scope):
-    conv_2d = tf.contrib.layers.conv2d_transpose(x, num_outputs, w_size,
-                                                stride=stride,
-                                                activation_fn=tf.nn.relu,   # elu is an alternative
-                                                normalizer_fn=tf.layers.batch_normalization,
-                                                normalizer_params={'training': phase},
-                                                scope=scope)
-
-    return tf.nn.dropout(conv_2d, keep_prob_)
-
-def conv2d_bn(x, w_size, num_outputs, keep_prob_, phase, scope):
+def conv2d(x, w_size, num_outputs, keep_prob_, phase, scope): # output size should be the same.
     conv_2d = tf.contrib.layers.conv2d(x, num_outputs, w_size,
-                                        activation_fn=None,
-                                        normalizer_fn=tf.layers.batch_normalization,
                                         normalizer_params={'training': phase},
                                         scope=scope)
+
     return conv_2d
 
-def conv2d(x, w_size, num_outputs, keep_prob_, scope):
-    conv_2d = tf.contrib.layers.conv2d(x, num_outputs, w_size,
-                                        activation_fn=None,
-                                        normalizer_fn=None,
-                                        scope=scope)
-    return conv_2d
 
-def conv2d_sigmoid(x, w_size, num_outputs, keep_prob_, scope):
-    conv_2d = tf.contrib.layers.conv2d(x, num_outputs, w_size,
-                                        activation_fn=tf.nn.sigmoid,
-                                        normalizer_fn=None,
-                                        scope=scope)
-    return conv_2d
+def conv2d_bn_relu(x, w_size, num_outputs, keep_prob_, phase, scope): # output size should be the same.
+    strides = 1
+    cnn_weights = tf.get_variable("cnn_weights_bn_relu", shape=[3, 3, x.shape[-1], num_outputs], initializer=tf.initializers.glorot_uniform())
+    cnn_bias = tf.get_variable("cnn_bias_bn_relu", shape=num_outputs, initializer=tf.initializers.glorot_uniform())    
+    out = tf.nn.conv2d(x, cnn_weights, padding="SAME", strides = [1, strides, strides, 1])
+    out = tf.nn.bias_add(out, cnn_bias)
+    out = tf.layers.batch_normalization(out, training=phase)
+    out =  tf.nn.relu(out)
+    return tf.nn.dropout(out, keep_prob_)
+
+
+#def conv2d(x, w_size, num_outputs, keep_prob_, scope):
+#    strides = 1
+#    cnn_weights = tf.get_variable("cnn_weights_bn_relu", shape=[3, 3, x.shape[-1], num_outputs], initializer=tf.initializers.glorot_uniform())
+#    cnn_bias = tf.get_variable("cnn_bias_bn_relu", shape=num_outputs, initializer=tf.initializers.glorot_uniform())    
+#    out = tf.nn.conv2d(x, cnn_weights, padding="SAME", strides = [1, strides, strides, 1])
+#    return tf.nn.bias_add(out, cnn_bias)
+
+
+#def conv2d_sigmoid(x, w_size, num_outputs, keep_prob_, scope):
+#    strides = 1
+#    cnn_weights = tf.get_variable("cnn_weights_bn_relu", shape=[3, 3, x.shape[-1], num_outputs], initializer=tf.initializers.glorot_uniform())
+#    cnn_bias = tf.get_variable("cnn_bias_bn_relu", shape=num_outputs, initializer=tf.initializers.glorot_uniform())    
+#    out = tf.nn.conv2d(x, cnn_weights, padding="SAME", strides = [1, strides, strides, 1])
+#    out = tf.nn.bias_add(out, cnn_bias)
+#    return tf.nn.sigmoid(out)
+#
 
 def max_pool(x,n):
     return tf.nn.max_pool(x, ksize=[1, n, n, 1], strides=[1, n, n, 1], padding='SAME')
 
 def concat(x1,x2):
     return tf.concat([x1, x2], 3)   
-
-def convlstm(inputs, name = "conv_lstm_cell", Nx=8, Ny=8, nchannels=1024, n_hiddens = 32, kernel_shape=[3, 3]):
-    ''' Basic idea: Have a convlstm in the bottleneck layer, where each 
-    timestep is fed into one hidden layer of the convLSTM. This should nodel the 
-    sequential nature of the data along the propagation axis (i.e. "Timesteps")
-    The model also outputs all convlstm cell's outputs which are concatenated 
-    and decoded by the U_Net decoder. All other Skip connectsions won't be 
-    treated this way.  Information transfer should be ensured, because LSTM is 
-    hard to train anyway. '''
-    #https://github.com/yz-cnsdqz/exercise2_VideoParsing/
-    #https://jasdeep06.github.io/posts/Understanding-LSTM-in-Tensorflow-MNIST/
-    #https://github.com/Apm5/my_deep_learning_code/ <- Looks good!
-    # Do we need to stack/unstack anything?
-    
-    convlstm_layer= tf.contrib.rnn.ConvLSTMCell(
-                conv_ndims=2,
-                input_shape=[Nx, Ny, nchannels],
-                output_channels=n_hiddens,
-                kernel_shape=kernel_shape,
-                use_bias=True,
-                skip_connection=False,
-                forget_bias=1.0,
-                initializers=None,
-                name=name)
-    
-    mysize = tf.shape(inputs) 
-    batch_size = mysize[0]
-    initial_state = convlstm_layer.zero_state(batch_size, dtype=tf.float32)
-    outputs,_=tf.nn.dynamic_rnn(convlstm_layer,inputs,initial_state=initial_state,time_major=False,dtype="float32")
-    return outputs
-

@@ -68,24 +68,116 @@ class BasicConvLSTMCell(tf.contrib.rnn.RNNCell):
       else:
         new_state = tf.concat([new_c, new_h], 3)
       return new_h, new_state
+  
+# https://github.com/carlthome/tensorflow-convlstm-cell
+class ConvLSTMCell(tf.nn.rnn_cell.RNNCell):
+  """A LSTM cell with convolutions instead of multiplications.
+  Reference:
+    Xingjian, S. H. I., et al. "Convolutional LSTM network: A machine learning approach for precipitation nowcasting." Advances in Neural Information Processing Systems. 2015.
+  """
+
+  def __init__(self, shape, filters, kernel, forget_bias=1.0, activation=tf.tanh, normalize=True, peephole=True, data_format='channels_last', reuse=None):
+    super(ConvLSTMCell, self).__init__(_reuse=reuse)
+    self._kernel = kernel
+    self._filters = filters
+    self._forget_bias = forget_bias
+    self._activation = activation
+    self._normalize = normalize
+    self._peephole = peephole
+    if data_format == 'channels_last':
+        self._size = tf.TensorShape(shape + [self._filters])
+        self._feature_axis = self._size.ndims
+        self._data_format = None
+    elif data_format == 'channels_first':
+        self._size = tf.TensorShape([self._filters] + shape)
+        self._feature_axis = 0
+        self._data_format = 'NC'
+    else:
+        raise ValueError('Unknown data_format')
+
+  @property
+  def state_size(self):
+    return tf.nn.rnn_cell.LSTMStateTuple(self._size, self._size)
+
+  @property
+  def output_size(self):
+    return self._size
+
+  def call(self, x, state):
+    c, h = state
+
+    x = tf.concat([x, h], axis=self._feature_axis)
+    n = x.shape[-1].value
+    m = 4 * self._filters if self._filters > 1 else 4
+    W = tf.get_variable('kernel', self._kernel + [n, m])
+    y = tf.nn.convolution(x, W, 'SAME', data_format=self._data_format)
+    if not self._normalize:
+      y += tf.get_variable('bias', [m], initializer=tf.zeros_initializer())
+    j, i, f, o = tf.split(y, 4, axis=self._feature_axis)
+
+    if self._peephole:
+      i += tf.get_variable('W_ci', c.shape[1:]) * c
+      f += tf.get_variable('W_cf', c.shape[1:]) * c
+
+    if self._normalize:
+      j = tf.contrib.layers.layer_norm(j)
+      i = tf.contrib.layers.layer_norm(i)
+      f = tf.contrib.layers.layer_norm(f)
+
+    f = tf.sigmoid(f + self._forget_bias)
+    i = tf.sigmoid(i)
+    c = c * f + i * self._activation(j)
+
+    if self._peephole:
+      o += tf.get_variable('W_co', c.shape[1:]) * c
+
+    if self._normalize:
+      o = tf.contrib.layers.layer_norm(o)
+      c = tf.contrib.layers.layer_norm(c)
+
+    o = tf.sigmoid(o)
+    h = o * self._activation(c)
+
+    state = tf.nn.rnn_cell.LSTMStateTuple(c, h)
+
+    return h, state
 
 if __name__ == '__main__':
-    Nx, Ny = 200,200
-    ntimesteps = 50
-    batchsize = 2
-    nchanels = 1
-    size_kernel = 3
-    num_kernel = 6
-    inputs=tf.placeholder(tf.float32, [ntimesteps,batchsize,Nx,Ny,nchanels])
-    # we suppose inputs to be [time, batch_size, row, col, channel]
-    # (self, shape, num_filters, kernel_size, forget_bias=1.0,
-    #             input_size=None, state_is_tuple=True, activation=tf.nn.tanh, reuse=None)
-    
-    cell = BasicConvLSTMCell([Nx,Ny], num_kernel, [size_kernel,size_kernel])
-    
-    outputs, state = tf.nn.dynamic_rnn(cell, inputs, dtype=inputs.dtype, time_major=True)
-    with tf.Session() as sess:
-        inp = np.random.normal(size=(ntimesteps,batchsize,Nx,Ny,nchanels))
-        sess.run(tf.global_variables_initializer())
-        o, s = sess.run([outputs, state], feed_dict={inputs:inp})
-        print (o.shape) #(5,2,3,3,6)'
+    if (0):
+        Nx, Ny = 200,200
+        ntimesteps = 50
+        batchsize = 2
+        nchanels = 1
+        size_kernel = 3
+        num_kernel = 6
+        inputs=tf.placeholder(tf.float32, [ntimesteps,batchsize,Nx,Ny,nchanels])
+        # we suppose inputs to be [time, batch_size, row, col, channel]
+        # (self, shape, num_filters, kernel_size, forget_bias=1.0,
+        #             input_size=None, state_is_tuple=True, activation=tf.nn.tanh, reuse=None)
+        
+        cell = BasicConvLSTMCell([Nx,Ny], num_kernel, [size_kernel,size_kernel])
+        
+
+        outputs, state = tf.nn.dynamic_rnn(cell, inputs, dtype=inputs.dtype, time_major=True)
+        with tf.Session() as sess:
+            inp = np.random.normal(size=(ntimesteps,batchsize,Nx,Ny,nchanels))
+            sess.run(tf.global_variables_initializer())
+            o, s = sess.run([outputs, state], feed_dict={inputs:inp})
+            print (o.shape) #(5,2,3,3,6)'
+    else:
+            
+        
+        batch_size = 32
+        timesteps = 100
+        shape = [640, 480]
+        kernel = [3, 3]
+        channels = 1
+        filters = 12
+        # Create a placeholder for videos.
+        inputs = tf.placeholder(tf.float32, [batch_size, timesteps] + shape + [channels])
+        
+        cell = ConvLSTMCell(shape, filters, kernel)
+        outputs, state = tf.nn.dynamic_rnn(cell, inputs, dtype=inputs.dtype)
+        
+                
+                

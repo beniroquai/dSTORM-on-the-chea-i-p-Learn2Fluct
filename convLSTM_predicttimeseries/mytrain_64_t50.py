@@ -1,6 +1,5 @@
-from sofilstm.unet_bn import Unet_bn
-from sofilstm.train import Trainer_bn
-
+import sofilstm.sofi as sofi
+import sofilstm.train as train
 from sofilstm import image_util
 
 import scipy.io as spio
@@ -16,13 +15,19 @@ from sys import platform
 # Because we have real & imaginary part of our input, data_channels is set to 2
 data_channels = 1
 truth_channels = 1
-
+features_root = 1
 # args for training
-batch_size = 2  # batch size for training
-ntimesteps = 50  # number of time-steps for one 3D volume
+batch_size = 1      # batch size for training
+ntimesteps = 50    # number of time-steps for one 3D volume
 valid_size = batch_size  # batch size for validating (must be same as batch_size!)
 optimizer = "adam"  # optimizer we want to use, 'adam' or 'momentum'
-Nx, Ny = 100, 100 # input size of the image (will be multiplied by 2)
+Nx, Ny = 100, 100   # final size of the image
+
+learning_rate = 0.01
+display_step = 100
+epochs = 50
+training_iters = 100
+save_epoch = 1
 
 # here indicating the GPU you want to use. if you don't have GPU, just leave it.
 gpu_ind = '0,1'
@@ -35,16 +40,13 @@ nn_name = 'upsamping'
 
 # Specify the location with for the training data #
 if platform == "linux" or platform == "linux2":
-	train_data_path = '/home/diederich/Documents/BOSTON/DATA/data_32bit_for_unet_RG0.20' # linux
+	train_data_path = './data_downconverted' # linux
 elif platform == "darwin":
-	train_data_path = './data' # OS X
+	train_data_path = './test' # OS X
 elif platform == 'win32':
    train_data_path = '.\\data_downconverted'
 
-#data = preprocess(data, data_channels)    # 4 dimension -> 3 dimension if you do data[:,:,:,1]
-#truths = preprocess(truths_mat['obGausWeak128'], truth_channels)
 data_provider = image_util.ImageDataProvider_hdf5_vol(train_data_path, nchannels = 1, mysize=(Nx, Ny), ntimesteps=ntimesteps)
-#TODO: Pre and Postprocessing in imageutil?
 
 # Specify the location with for the validation data #
 valid_data_path = train_data_path#'./data_32bit_for_unet'
@@ -62,42 +64,22 @@ valid_provider = image_util.ImageDataProvider_hdf5_vol(valid_data_path, nchannel
 
 #-- Network Setup --#
 # set up args for the unet
-kwargs = {
-	"layers": 4,           # how many resolution levels we want to have
-	"conv_times": 2,       # how many times we want to convolve in each level
-	"features_root": 16,   # how many feature_maps we want to have as root (the following levels will calculate the feature_map by multiply by 2, exp, 64, 128, 256)
-	"filter_size": 3,      # filter size used in convolution
-	"pool_size": 2,        # pooling size used in max-pooling
-	"summaries": True
-}
 
-
-net = Unet_bn(batchsize=batch_size, Nx=Nx, Ny=Ny, ntimesteps=ntimesteps, cost="mean_squared_error", **kwargs)
-
+net = sofi.SOFI(batchsize=batch_size, Nx=Nx, Ny=Ny, img_channels=1, truth_channels=features_root, ntimesteps=ntimesteps, cost="mean_squared_error")
+       
 
 ####################################################
 ####                 TRAINING                    ###
 ####################################################
-
+#tensorboard --logdir=.\
 
 # output paths for results
 output_path = nn_name+'_gpu' + gpu_ind + '/models'
 prediction_path = nn_name+'_gpu' + gpu_ind + '/validation'
 # restore_path = 'gpu001/models/50099_cpkt'
 
-# optional args
-opt_kwargs = {
-		'learning_rate': 0.001
-}
-
-
 # make a trainer for muscat
-trainer = Trainer_bn(net, batch_size=batch_size, optimizer = "adam", opt_kwargs=opt_kwargs)
+trainer = train.trainer_sofi(net, batch_size=batch_size, optimizer = "adam")
 
 # train 
-path = trainer.train(data_provider, output_path, valid_provider, valid_size, training_iters=100, epochs=1000, display_step=20, save_epoch=100, prediction_path=prediction_path)
-
-
-
-
-
+path = trainer.train(data_provider, output_path, valid_provider, valid_size, training_iters=training_iters, epochs=epochs, display_step=display_step, save_epoch=save_epoch, prediction_path=prediction_path)

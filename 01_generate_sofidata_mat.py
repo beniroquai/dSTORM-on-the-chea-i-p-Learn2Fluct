@@ -12,13 +12,14 @@ from scipy.ndimage import gaussian_filter
 
 # This script automatically downloads a bunch of images from the OMERO web viwer
 # https://idr.openmicroscopy.org/mapr/cellline/?experimenter=-1
-image_id_min = 4995167 # some actin stained U2OS cells 
-num_images = 1000
+image_id_min = 4995167, which_channel = 'R'# some actin stained U2OS cells 
+image_id_min  = 9757045 # some huvecs
+image_id_min = 9757045, which_channel = 'G' # some U2OS
+num_images = 100
 myfolder = './convLSTM_predicttimeseries/data_downconverted'
 myfolder_raw = myfolder + './'
 
 is_safemat = True   # want to store the data as mats?
-which_cannel = 'R'  # R G B?
 
 n_modes = 30
 n_frames = 300

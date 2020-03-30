@@ -27,9 +27,11 @@ from collections import OrderedDict
 import logging
 
 import tensorflow as tf
+import keras
+from keras import backend as K
 from sofilstm import util
 
-class Trainer_bn(object):
+class trainer_sofi(object):
     """
     Trains a unet instance
     
@@ -141,7 +143,11 @@ class Trainer_bn(object):
         if epochs == 0:
             return save_path
 
-        with tf.Session() as sess:
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        with tf.Session(config=config) as sess:
+            K.set_session(sess)
+
             if write_graph:
                 tf.train.write_graph(sess.graph_def, output_path, "graph.pb", False)
             
