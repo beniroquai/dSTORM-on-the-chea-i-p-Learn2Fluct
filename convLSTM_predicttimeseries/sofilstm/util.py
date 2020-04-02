@@ -21,6 +21,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 import numpy as np
 import scipy.io as sio
 import scipy.misc as smisc
+import matplotlib.pyplot as plt
 
 
 def to_rgb(img):
@@ -74,4 +75,22 @@ def save_img(img, path):
     :param path: the target path
     """
     img = to_rgb(img)
-    smisc.imsave(path, img.round().astype(np.uint8))
+    plt.imsave(path, img.round().astype(np.uint8))
+
+
+
+#  Define a matlab like gaussian 2D filter
+def matlab_style_gauss2D(shape=(7,7),sigma=1):
+    """ 
+    2D gaussian filter - should give the same result as:
+    MATLAB's fspecial('gaussian',[shape],[sigma]) 
+    """
+    m,n = [(ss-1.)/2. for ss in shape]
+    y,x = np.ogrid[-m:m+1,-n:n+1]
+    h = np.float32(np.exp( -(x*x + y*y) / (2.*sigma*sigma) ))
+    h[ h < np.finfo(h.dtype).eps*h.max() ] = 0
+    sumh = h.sum()
+    if sumh != 0:
+        h /= sumh
+    h = np.float32(h*2.0)
+    return h

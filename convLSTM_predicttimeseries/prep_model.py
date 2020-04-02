@@ -9,19 +9,23 @@ import tensorflow as tf
 
 # The original freeze_graph function
 # from tensorflow.python.tools.freeze_graph import freeze_graph 
-model_dir = './upsamping_gpu0,1/models/final/'
-output_node_names = 'output_final'
+model_dir = './networks/upsamping_4_plusmean_conv_gpu0/models/final/'
+output_node_names = 'output_raw'
 input_node_name = 'x_input'
 
-#freeze_graph(model_dir, output_node_names)
+
 
 # We retrieve our checkpoint fullpath
 checkpoint = tf.train.get_checkpoint_state(model_dir)
 input_checkpoint = checkpoint.model_checkpoint_path
 
+#freeze_graph(model_dir, output_node_names)
+
+
+
 # We precise the file fullname of our freezed graph
 absolute_model_dir = "/".join(input_checkpoint.split('/')[:-1])
-output_graph = absolute_model_dir + "/frozen_model.pb"
+output_graph = absolute_model_dir + "/saved_model.pb"
 
 # We clear devices to allow TensorFlow to control on which device it will load operations
 clear_devices = True
@@ -54,7 +58,7 @@ from tensorflow.python.tools import freeze_graph
 from tensorflow.python.tools import optimize_for_inference_lib
 
 inputGraph = tf.GraphDef()
-with tf.gfile.Open(absolute_model_dir+'/'+'frozen_model.pb', "rb") as f:
+with tf.gfile.Open(absolute_model_dir+'/'+'saved_model.pb', "rb") as f:
     data2read = f.read()
     inputGraph.ParseFromString(data2read)
 
@@ -66,5 +70,7 @@ outputGraph = optimize_for_inference_lib.optimize_for_inference(
 
         # Save the optimized graph
 
-f = tf.gfile.FastGFile(absolute_model_dir+'/'+"outputOptimizedGraph.pb", "w")
+f = tf.gfile.FastGFile(absolute_model_dir+'/'+"saved_model_opt.pb", "w")
 f.write(outputGraph.SerializeToString())    
+
+

@@ -15,24 +15,25 @@ from sys import platform
 # Because we have real & imaginary part of our input, data_channels is set to 2
 data_channels = 1
 truth_channels = 1
-features_root = 1
+features_root = 16
 # args for training
-batch_size = 1      # batch size for training
+batch_size = 2     # batch size for training
 ntimesteps = 50    # number of time-steps for one 3D volume
 valid_size = batch_size  # batch size for validating (must be same as batch_size!)
 optimizer = "adam"  # optimizer we want to use, 'adam' or 'momentum'
-Nx, Ny = 100, 100   # final size of the image
+Nx, Ny = 200, 200   # final size of the image
 
-learning_rate = 0.01
+learning_rate = 0.001
 display_step = 100
 epochs = 50
-training_iters = 100
+training_iters = 200
 save_epoch = 1
 
+
 # here indicating the GPU you want to use. if you don't have GPU, just leave it.
-gpu_ind = '0,1'
+gpu_ind = '0'
 os.environ['CUDA_VISIBLE_DEVICES'] = gpu_ind; # 0,1,2,3
-nn_name = 'upsamping'
+nn_name = 'upsamping_2_noconv_100x100_2'
 
 ####################################################
 ####                DATA LOADING                 ###
@@ -40,17 +41,18 @@ nn_name = 'upsamping'
 
 # Specify the location with for the training data #
 if platform == "linux" or platform == "linux2":
-	train_data_path = './data_downconverted' # linux
+	train_data_path = './data/data_downconverted'; upscaling=4 # linux
 elif platform == "darwin":
-	train_data_path = './test' # OS X
+	train_data_path = './data/test'; upscaling=4 # OS X
 elif platform == 'win32':
-   train_data_path = '.\\data_downconverted'
+   train_data_path = '.\\data\\data_downconverted_4'; upscaling=2
 
-data_provider = image_util.ImageDataProvider_hdf5_vol(train_data_path, nchannels = 1, mysize=(Nx, Ny), ntimesteps=ntimesteps)
+# Specify the location with for the validation data #
+data_provider = image_util.ImageDataProvider_hdf5_vol(train_data_path, upscaling=upscaling, nchannels = 1, mysize=(Nx, Ny), ntimesteps=ntimesteps)
 
 # Specify the location with for the validation data #
 valid_data_path = train_data_path#'./data_32bit_for_unet'
-valid_provider = image_util.ImageDataProvider_hdf5_vol(valid_data_path, nchannels = 1, mysize=(Nx, Ny), ntimesteps=ntimesteps)
+valid_provider = image_util.ImageDataProvider_hdf5_vol(valid_data_path, upscaling=upscaling, nchannels = 1, mysize=(Nx, Ny), ntimesteps=ntimesteps)
 
 
 ####################################################
@@ -65,7 +67,7 @@ valid_provider = image_util.ImageDataProvider_hdf5_vol(valid_data_path, nchannel
 #-- Network Setup --#
 # set up args for the unet
 
-net = sofi.SOFI(batchsize=batch_size, Nx=Nx, Ny=Ny, img_channels=1, truth_channels=features_root, ntimesteps=ntimesteps, cost="mean_squared_error")
+net = sofi.SOFI(batchsize=batch_size, Nx=Nx, Ny=Ny, img_channels=1, features_root=features_root, ntimesteps=ntimesteps, cost="mean_squared_error")
        
 
 ####################################################
@@ -74,9 +76,9 @@ net = sofi.SOFI(batchsize=batch_size, Nx=Nx, Ny=Ny, img_channels=1, truth_channe
 #tensorboard --logdir=.\
 
 # output paths for results
-output_path = nn_name+'_gpu' + gpu_ind + '/models'
-prediction_path = nn_name+'_gpu' + gpu_ind + '/validation'
-# restore_path = 'gpu001/models/50099_cpkt'
+output_root = 'networks/'
+output_path = output_root+ nn_name+'_gpu' + gpu_ind + '/models'
+prediction_path = output_root + nn_name+'_gpu' + gpu_ind + '/validation'
 
 # make a trainer for muscat
 trainer = train.trainer_sofi(net, batch_size=batch_size, optimizer = "adam")

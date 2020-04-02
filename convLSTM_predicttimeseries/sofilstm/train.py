@@ -114,7 +114,7 @@ class trainer_sofi(object):
         
         return init
 
-    def train(self, data_provider, output_path, valid_provider, valid_size, training_iters=100, epochs=1000, dropout=0.75, display_step=1, save_epoch=50, restore=False, write_graph=False, prediction_path='validation'):
+    def train(self, data_provider, output_path, valid_provider, valid_size, training_iters=100, epochs=1000, dropout=0.75, display_step=1, save_epoch=50, restore=False, write_graph=True, prediction_path='validation'):
         """
         Lauches the training process
         
@@ -250,7 +250,7 @@ class trainer_sofi(object):
         util.save_mat(prediction, "%s/%s.mat"%(self.prediction_path, name),'result')
 
         if store_img:
-            util.save_img(prediction[0,...], "%s/%s_img.tif"%(self.prediction_path, name))
+            util.save_img(prediction[0,...], "%s/%s_img.png"%(self.prediction_path, name))
 
     def record_summary(self, writer, name, value, step):
         summary=tf.Summary()

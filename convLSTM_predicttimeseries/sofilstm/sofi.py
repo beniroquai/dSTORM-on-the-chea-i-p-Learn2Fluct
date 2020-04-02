@@ -142,6 +142,23 @@ class SOFI(object):
                             # define operation
         return prediction
     
+    def saveTFLITE(self, model_path, outputmodelpath='converted_model.tflite'):
+        init = tf.global_variables_initializer()
+        with tf.Session() as sess:
+            # Initialize variables
+            sess.run(init)
+        
+            # Restore model weights from previously saved model
+            self.restore(sess, model_path)
+                    
+            converter = tf.lite.TFLiteConverter.from_session(sess, [self.x], [self.recons])
+            tflite_model = converter.convert()
+            open(outputmodelpath, "wb").write(tflite_model)
+
+        
+    
+    
+    
     def save(self, sess, model_path):
         """
         Saves the current session to a checkpoint

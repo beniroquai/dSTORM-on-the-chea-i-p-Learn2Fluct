@@ -117,10 +117,11 @@ class ImageDataProvider_hdf5_vol(BaseDataProvider):
     """
 
 
-    def __init__(self, search_path, nchannels=1, mysize=None, ntimesteps=9, test=False, a_min=None, a_max=None):
+    def __init__(self, search_path, nchannels=1, mysize=None, ntimesteps=9, upscaling=2, test=False, a_min=None, a_max=None):
         self.a_min = a_min if a_min is not None else -np.inf
         self.a_max = a_max if a_min is not None else np.inf
         self.mysize = mysize
+        self.upscaling = int(upscaling)
         
         self.file_idx = -1
         self.timestep_idx = 0
@@ -190,8 +191,15 @@ class ImageDataProvider_hdf5_vol(BaseDataProvider):
             data = self._load_file_mat(os.path.join(self.image_name, self.holoname+'.mat'), self.holoname)
             label = self._load_file_mat(os.path.join(self.image_name, self.gtname+'.mat'), self.gtname)
             if(not(self.mysize is None)):
-                data = nip.extract(nip.image(data), (self.mysize[0]//2,self.mysize[1]//2, data.shape[-1]))
-                label = nip.extract(nip.image(label), (self.mysize[0], self.mysize[1]))
+				# randomly extract a smaller roi
+                if((data.shape[0]-self.mysize[0])//2)>0:
+                    mycenter_x = self.mysize[0]//2+np.random.randint(0,(data.shape[0]-self.mysize[0])//2)
+                    mycenter_y = self.mysize[1]//2+np.random.randint(0,(data.shape[1]-self.mysize[1])//2)
+                    data = nip.extract(nip.image(data), (self.mysize[0]//self.upscaling,self.mysize[1]//self.upscaling, data.shape[-1]), (mycenter_x//self.upscaling,mycenter_y//self.upscaling))
+                    label = nip.extract(nip.image(label), (self.mysize[0], self.mysize[1]), (mycenter_x,mycenter_y))
+                else:
+                    data = nip.extract(nip.image(data), (self.mysize[0]//self.upscaling,self.mysize[1]//self.upscaling, data.shape[-1]))
+                    label = nip.extract(nip.image(label), (self.mysize[0], self.mysize[1]))
 
         data = self._process_data(data)
         label = self._process_truths(label)
@@ -218,8 +226,8 @@ class ImageDataProvider_hdf5_vol(BaseDataProvider):
     def _process_truths(self, truth):
         #print('Preprocessing truth (normalizing)')
         #truth = np.clip(np.fabs(truth), self.a_min, self.a_max)
-        truth -= np.min(truth)
-        truth = truth/np.max(truth)
+        #truth -= np.min(truth)
+        truth = truth/256. #/np.max(truth)
         #truth -= .5
         return truth
 
@@ -229,9 +237,9 @@ class ImageDataProvider_hdf5_vol(BaseDataProvider):
         #data = nip.resample(data, factors=[2., 2., 1.])
         from skimage.transform import resize
         Nx, Ny, Nz =  data.shape
-        data = resize(data, (Nx*2, Nx*2, Nz))
-        data -= np.min(data)
-        data = data/np.max(data)
+        data = resize(data, (Nx*self.upscaling, Nx*self.upscaling, Nz))
+        #data -= np.min(data)
+        #data = data/256. #np.max(data)
         #data -= .5
         return data
 

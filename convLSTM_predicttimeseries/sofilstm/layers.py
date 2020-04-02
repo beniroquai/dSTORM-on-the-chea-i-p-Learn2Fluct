@@ -48,22 +48,6 @@ def mse_array(array_x, array_y, size):
     return tf.scalar_mul(inv_size, se)
 
 
-def conv2d_bn_relu_(x, w_size, num_outputs, keep_prob_, phase, scope): # output size should be the same.
-    conv_2d = tf.contrib.layers.conv2d(x, num_outputs, w_size,
-                                        activation_fn=tf.nn.relu,   # elu is an alternative
-                                        normalizer_fn=tf.layers.batch_normalization,
-                                        normalizer_params={'training': phase},
-                                        scope=scope)
-
-    return tf.nn.dropout(conv_2d, keep_prob_)
-
-def conv2d(x, w_size, num_outputs, keep_prob_, phase, scope): # output size should be the same.
-    conv_2d = tf.contrib.layers.conv2d(x, num_outputs, w_size,
-                                        normalizer_params={'training': phase},
-                                        scope=scope)
-
-    return conv_2d
-
 
 def conv2d_bn_relu(x, w_size, num_outputs, keep_prob_, phase, scope): # output size should be the same.
     strides = 1

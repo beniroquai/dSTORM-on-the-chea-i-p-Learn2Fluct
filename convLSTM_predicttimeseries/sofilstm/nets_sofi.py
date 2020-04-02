@@ -5,7 +5,7 @@ import tensorflow as tf
 import keras
 
 import sofilstm.layers as layers
-
+import sofilstm.util as util
 import sofilstm.convlstm as convlstm 
 
 def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_root=16, kernel_size=3, pool_size=2, summaries=True):
@@ -43,12 +43,21 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
             with tf.variable_scope("conv2d_1by1"):
                 #output = conv2d(in_node, 1, truth_channels, keep_prob, 'conv2truth_channels')
                 output_conv = layers.conv2d_bn_relu(lstm_out, 1, 1, keep_prob, phase, 'conv2truth_channels')
-                output_std = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
-                output_end = output_conv+output_std
+                output_std = tf.expand_dims(tf.math.reduce_std(x,axis=-1),axis=-1)
+                output_mean = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
+                output_end = output_conv+output_mean
                 #output = conv2d_sigmoid(in_node, 1, truth_channels, keep_prob, 'conv2truth_channels')
                 #output = deconv2d_bn_relu_res(in_node, 1, truth_channels, 1, keep_prob, phase, 'conv2truth_channels')
         else:
             output_end=lstm_out
+            
+        # add an additional convolution with a gaussian with the hope to reduce the extent of the structures
+        psf_size = 9
+        psf_sigma = 4
+        psf_heatmap = util.matlab_style_gauss2D(shape = (psf_size,psf_size),sigma=psf_sigma)
+        gfilter = tf.reshape(psf_heatmap, [psf_size, psf_size, 1, 1])
+        output_end = tf.nn.conv2d(output_end, gfilter, [1, 1, 1, 1], padding="VALID")
+        print('We add an additional convolution to the output map!')
     
     elif(0):
         n_features_convlstm = 1
@@ -76,23 +85,33 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
         in_node_lstm = tf.expand_dims(tf.transpose(x_image,[0,3,1,2]),-1)
         
         # Fully-connected Keras layer
-        convlstm_layer_1 = tf.keras.layers.ConvLSTM2D(features_root, kernel_size, name='state_layer1', padding= 'same', data_format='channels_last', return_sequences=False, trainable=False)(in_node_lstm)
+        convlstm_layer_1 = tf.keras.layers.ConvLSTM2D(features_root, kernel_size, name='state_layer1', padding= 'same', data_format='channels_last', return_sequences=False)(in_node_lstm)
         convlstm_layer_bn_1 = tf.keras.layers.BatchNormalization(name='state_batch_norm1')(convlstm_layer_1)
         convlstm_layer_conv_1 = tf.keras.layers.Conv2D(1, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(convlstm_layer_bn_1)
-		output_std = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
-		output_end = convlstm_layer_conv_1+output_std
+        output_std = tf.expand_dims(tf.math.reduce_std(x,axis=-1),axis=-1)
+        output_mean = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
+        output_end = convlstm_layer_conv_1#+output_mean
+        output_raw = tf.identity(output_end, 'output_raw') # just to preserve the name
+    
+        psf_size = 9
+        psf_sigma = 2
+        psf_heatmap = util.matlab_style_gauss2D(shape = (psf_size,psf_size),sigma=psf_sigma)
+        gfilter = tf.reshape(psf_heatmap, [psf_size, psf_size, 1, 1])
+        output_end_psf = tf.nn.conv2d(output_raw, gfilter, [1, 1, 1, 1], padding="SAME")
+        print('We add an additional convolution to the output map!')
 
 
     #if True: #summaries
     # Will reccord the summary for all images
     logging.info("Record all Image-Summaries")
     tf.summary.image('output_image', get_image_summary(output_end))
+    tf.summary.image('output_image_psf', get_image_summary(output_end_psf))
     tf.summary.image('input_image', get_image_summary(tf.expand_dims(x[0,:,:,:],0)))
     tf.summary.image('groundtruth_image', get_image_summary(tf.expand_dims(y[0,:,:,:],0)))
     tf.summary.image('input_image_mean', get_image_summary(tf.expand_dims(tf.expand_dims(tf.math.reduce_mean(x[0,:,:,:],axis=-1),axis=0),axis=-1),0))
     tf.summary.image('input_image_std', get_image_summary(tf.expand_dims(tf.expand_dims(tf.math.reduce_std(x[0,:,:,:],axis=-1),axis=0),axis=-1),0))
        
-    return tf.identity(output_end, 'output_final')
+    return output_end
 
 def get_image_summary(img, idx=0):
     """

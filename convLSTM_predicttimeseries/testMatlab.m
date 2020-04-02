@@ -12,3 +12,11 @@ gt = dip_image(permute(gt, [2,3,1]));
 sofi_result_std = squeeze(std(sofi,[], 3));
 sofi_result_mean = squeeze(mean(sofi,[], 3));
 cat(4, rotation(result,pi,3,'linear','zero'), sofi_result_mean, sofi_result_std, gt)
+
+
+open(fn);
+ 
+%%
+sofi=(readtimeseries('C:\Users\diederichbenedict\Dropbox\Dokumente\Promotion\PROJECTS\STORMoChip\PYTHON\Learn2Fluct\convLSTM_predicttimeseries\test\MOV_2020_01_07_14_00_42-1.mp4 kept stack.tif'));
+sofi=double(resample(sofi,[.5 .5 1]));
+save('./test/sofi_ecoli','sofi')
