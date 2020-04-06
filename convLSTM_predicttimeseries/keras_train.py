@@ -37,7 +37,7 @@ Nchannel = 1
 model_dir = '.\\network'
 network_type = 'SOFI_ConvLSTM2D'
 
-Nepochs = 200
+Nepochs = 1
 Niter = 100
 Ndisplay = 20
 
@@ -131,7 +131,7 @@ model.save(f'final_{name}.hdf5')
 # Predict 
 batch_size_test=np.random.randint(0,300)
 myX,myY = training_generator.__getitem__(batch_size_test)
-myY_result = model.predict(myX, batch_size=batch_size_test)
+myY_result = model.predict(myX, batch_size=Nbatch)
 
 plt.subplot(131)
 plt.title('SOFI'), plt.imshow(np.squeeze(myY_result)), plt.colorbar()
@@ -154,7 +154,7 @@ open(os.path.join(model_dir,"converted_model.tflite"), "wb").write(tflite_quant_
 
 
 import tensorflow as tf
-MODEL_PATH = '.\\network\\best_SOFI_ConvLSTM2D1585822185.2044132.hdf5'
+MODEL_PATH = f'final_{name}.hdf5'
 converter = tf.lite.TFLiteConverter.from_keras_model_file(MODEL_PATH)
 converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
                                        tf.lite.OpsSet.SELECT_TF_OPS]

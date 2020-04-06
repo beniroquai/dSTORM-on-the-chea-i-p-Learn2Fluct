@@ -33,21 +33,21 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
     #in_node = conv2d_bn_relu(x_image, kernel_size, features_root, keep_prob, phase, 'conv2feature_roots')
 
     if(0):
-        in_node_lstm = tf.expand_dims(tf.transpose(x_image,[0,3,1,2]),-1)
+        in_node_lstm = tf.expand_dims(tf.transpose(a=x_image,perm=[0,3,1,2]),-1)
         cell = convlstm.ConvLSTMCell([Nx, Ny], features_root, [kernel_size, kernel_size])
-        output, state = tf.nn.dynamic_rnn(cell, in_node_lstm, dtype=in_node_lstm.dtype)
+        output, state = tf.compat.v1.nn.dynamic_rnn(cell, in_node_lstm, dtype=in_node_lstm.dtype)
         # make the order of the layers following the convention of the LSTM
         # https://github.com/leena201818/radioml/blob/master/experiment/lstm/ConvLSTM.py
-        lstm_out = tf.transpose(output,[0,2,3,4,2])[:,:,:,:,-1] # select the last time step as the one we want to use
+        lstm_out = tf.transpose(a=output,perm=[0,2,3,4,2])[:,:,:,:,-1] # select the last time step as the one we want to use
     
         # Output Map
         if(1):
             print('Attention: We use sigmoid as last activation!')
-            with tf.variable_scope("conv2d_1by1"):
+            with tf.compat.v1.variable_scope("conv2d_1by1"):
                 #output = conv2d(in_node, 1, truth_channels, keep_prob, 'conv2truth_channels')
                 output_conv = layers.conv2d_bn_relu(lstm_out, 1, 1, keep_prob, phase, 'conv2truth_channels')
                 output_std = tf.expand_dims(tf.math.reduce_std(x,axis=-1),axis=-1)
-                output_mean = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
+                output_mean = tf.expand_dims(tf.math.reduce_mean(input_tensor=x,axis=-1),axis=-1)
                 output_end = output_conv+output_mean
                 #output = conv2d_sigmoid(in_node, 1, truth_channels, keep_prob, 'conv2truth_channels')
                 #output = deconv2d_bn_relu_res(in_node, 1, truth_channels, 1, keep_prob, phase, 'conv2truth_channels')
@@ -59,7 +59,7 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
         psf_sigma = 4
         psf_heatmap = util.matlab_style_gauss2D(shape = (psf_size,psf_size),sigma=psf_sigma)
         gfilter = tf.reshape(psf_heatmap, [psf_size, psf_size, 1, 1])
-        output_end = tf.nn.conv2d(output_end, gfilter, [1, 1, 1, 1], padding="VALID")
+        output_end = tf.nn.conv2d(input=output_end, filters=gfilter, strides=[1, 1, 1, 1], padding="VALID")
         print('We add an additional convolution to the output map!')
     
     elif(0):
@@ -69,30 +69,30 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
         #convlstm(inputs=x_image, name = "conv_lstm_cell", Nx=8, Ny=8, nchannels=1024, n_hiddens = 32, kernel_shape=[3, 3])
                         
         # make the order of the layers following the convention of the LSTM
-        in_node_lstm = tf.transpose(tf.expand_dims(x_image,-1),[3,0,1,2,4])
+        in_node_lstm = tf.transpose(a=tf.expand_dims(x_image,-1),perm=[3,0,1,2,4])
         
         # Apply the convLSTM layer for all time-steps
         cell = convlstm.BasicConvLSTMCell([Nx,Ny], features_root, [kernel_size,kernel_size])
-        output, state = tf.nn.dynamic_rnn(cell, in_node_lstm, dtype=in_node_lstm.dtype, time_major=True)
+        output, state = tf.compat.v1.nn.dynamic_rnn(cell, in_node_lstm, dtype=in_node_lstm.dtype, time_major=True)
         
         # make the order of the layers following the convention of the LSTM
-        lstm_out = tf.transpose(output,[1,2,3,0,4])
+        lstm_out = tf.transpose(a=output,perm=[1,2,3,0,4])
         in_node = lstm_out[:,:,:,-1,:] # select the last time step as the one we want to use
   
         # Output Map
         print('Attention: We use sigmoid as last activation!')
-        with tf.variable_scope("conv2d_1by1"):
+        with tf.compat.v1.variable_scope("conv2d_1by1"):
             output_end = layers.conv2d_bn_relu_(in_node, kernel_size, 1, keep_prob, phase, 'conv2truth_channels')
     
     elif(0):
-        in_node_lstm = tf.expand_dims(tf.transpose(x_image,[0,3,1,2]),-1)
+        in_node_lstm = tf.expand_dims(tf.transpose(a=x_image,perm=[0,3,1,2]),-1)
         
         # Fully-connected Keras layer
         convlstm_layer_1 = tf.keras.layers.ConvLSTM2D(features_root, kernel_size, name='state_layer1', padding= 'same', data_format='channels_last', return_sequences=False)(in_node_lstm)
         convlstm_layer_bn_1 = tf.keras.layers.BatchNormalization(name='state_batch_norm1')(convlstm_layer_1)
         convlstm_layer_conv_1 = tf.keras.layers.Conv2D(1, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(convlstm_layer_bn_1)
         output_std = tf.expand_dims(tf.math.reduce_std(x,axis=-1),axis=-1)
-        output_mean = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
+        output_mean = tf.expand_dims(tf.math.reduce_mean(input_tensor=x,axis=-1),axis=-1)
         output_end = convlstm_layer_conv_1#+output_mean
         output_raw = tf.identity(output_end, 'output_raw') # just to preserve the name
     
@@ -100,24 +100,24 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
         psf_sigma = 2
         psf_heatmap = util.matlab_style_gauss2D(shape = (psf_size,psf_size),sigma=psf_sigma)
         gfilter = tf.reshape(psf_heatmap, [psf_size, psf_size, 1, 1])
-        output_end_psf = tf.nn.conv2d(output_raw, gfilter, [1, 1, 1, 1], padding="SAME")
+        output_end_psf = tf.nn.conv2d(input=output_raw, filters=gfilter, strides=[1, 1, 1, 1], padding="SAME")
         print('We add an additional convolution to the output map!')
 
 
-    elif(0):
-        in_node_lstm = tf.transpose(x_image,[0,3,1,2])
+    elif(1):
+        in_node_lstm = tf.transpose(a=x_image,perm=[0,3,1,2])
         in_node_lstm = tf.reshape(in_node_lstm, [batch_size, Ntime, Nx*Ny])
         shape = [Nx, Ny]
         
         # Add the ConvLSTM step.
         cell = convlstmExperimental.ConvLSTMCell_lite([Nx, Ny], features_root, [3, 3], timesteps=Ntime, normalize=False, peephole=False)
-        outputs, state = tf.lite.experimental.nn.dynamic_rnn(cell, in_node_lstm, dtype=in_node_lstm.dtype)
+        outputs, state = tf.compat.v1.lite.experimental.nn.dynamic_rnn(cell, in_node_lstm, dtype=in_node_lstm.dtype)
         lstm_out = outputs[:,-1,:,:,:]
         
         
         convlstm_layer_conv_1 = tf.keras.layers.Conv2D(1, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(lstm_out)
         output_std = tf.expand_dims(tf.math.reduce_std(x,axis=-1),axis=-1)
-        output_mean = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
+        output_mean = tf.expand_dims(tf.math.reduce_mean(input_tensor=x,axis=-1),axis=-1)
         output_end = convlstm_layer_conv_1#+output_mean
         output_raw = tf.identity(output_end, 'output_raw') # just to preserve the name
     
@@ -125,41 +125,7 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
         psf_sigma = 2
         psf_heatmap = util.matlab_style_gauss2D(shape = (psf_size,psf_size),sigma=psf_sigma)
         gfilter = tf.reshape(psf_heatmap, [psf_size, psf_size, 1, 1])
-        output_end_psf = tf.nn.conv2d(output_raw, gfilter, [1, 1, 1, 1], padding="SAME")
-        print('We add an additional convolution to the output map!')
-
-    elif(1):
-        in_node_lstm = tf.expand_dims(x_image,-1)
-        shape = [Nx, Ny]
-  
-        p_input = in_node_lstm#   tf.placeholder(tf.float32, [batch_size, height, width, Ntime, channel])
-
-        p_input_list = tf.split(p_input,Ntime,3)
-        p_input_list = [tf.squeeze(p_input_, [3]) for p_input_ in p_input_list]
-        
-        cell = convlstmExperimental.ConvLSTMCell(1) # hidden_num 1
-        state = cell.zero_state(batch_size, Nx, Ny)
-        
-        with tf.variable_scope("ConvLSTM") as scope: # as BasicLSTMCell
-            for i, p_input_ in enumerate(p_input_list):
-                print('Concat timestep: '+str(i))
-                if i > 0: 
-                    scope.reuse_variables()
-                # ConvCell takes Tensor with size [batch_size, height, width, channel].
-                t_output, state = cell(p_input_, state)
-                
-        
-        convlstm_layer_conv_1 = tf.keras.layers.Conv2D(1, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(t_output)
-        output_std = tf.expand_dims(tf.math.reduce_std(x,axis=-1),axis=-1)
-        output_mean = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
-        output_end = convlstm_layer_conv_1#+output_mean
-        output_raw = tf.identity(output_end, 'output_raw') # just to preserve the name
-    
-        psf_size = 9
-        psf_sigma = 2
-        psf_heatmap = util.matlab_style_gauss2D(shape = (psf_size,psf_size),sigma=psf_sigma)
-        gfilter = tf.reshape(psf_heatmap, [psf_size, psf_size, 1, 1])
-        output_end_psf = tf.nn.conv2d(output_raw, gfilter, [1, 1, 1, 1], padding="SAME")
+        output_end_psf = tf.nn.conv2d(input=output_raw, filters=gfilter, strides=[1, 1, 1, 1], padding="SAME")
         print('We add an additional convolution to the output map!')
 
 
@@ -168,12 +134,12 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
     #if True: #summaries
     # Will reccord the summary for all images
     logging.info("Record all Image-Summaries")
-    tf.summary.image('output_image', get_image_summary(output_end))
-    tf.summary.image('output_image_psf', get_image_summary(output_end_psf))
-    tf.summary.image('input_image', get_image_summary(tf.expand_dims(x[0,:,:,:],0)))
-    tf.summary.image('groundtruth_image', get_image_summary(tf.expand_dims(y[0,:,:,:],0)))
-    tf.summary.image('input_image_mean', get_image_summary(tf.expand_dims(tf.expand_dims(tf.math.reduce_mean(x[0,:,:,:],axis=-1),axis=0),axis=-1),0))
-    tf.summary.image('input_image_std', get_image_summary(tf.expand_dims(tf.expand_dims(tf.math.reduce_std(x[0,:,:,:],axis=-1),axis=0),axis=-1),0))
+    tf.compat.v1.summary.image('output_image', get_image_summary(output_end))
+    tf.compat.v1.summary.image('output_image_psf', get_image_summary(output_end_psf))
+    tf.compat.v1.summary.image('input_image', get_image_summary(tf.expand_dims(x[0,:,:,:],0)))
+    tf.compat.v1.summary.image('groundtruth_image', get_image_summary(tf.expand_dims(y[0,:,:,:],0)))
+    tf.compat.v1.summary.image('input_image_mean', get_image_summary(tf.expand_dims(tf.expand_dims(tf.math.reduce_mean(input_tensor=x[0,:,:,:],axis=-1),axis=0),axis=-1),0))
+    tf.compat.v1.summary.image('input_image_std', get_image_summary(tf.expand_dims(tf.expand_dims(tf.math.reduce_std(x[0,:,:,:],axis=-1),axis=0),axis=-1),0))
        
     return output_end
 
@@ -183,13 +149,13 @@ def get_image_summary(img, idx=0):
     """
     
     V = tf.slice(img, (0, 0, 0, idx), (1, -1, -1, 1))
-    V -= tf.reduce_min(V)
-    V /= tf.reduce_max(V)
+    V -= tf.reduce_min(input_tensor=V)
+    V /= tf.reduce_max(input_tensor=V)
     V *= 255
     
-    img_w = tf.shape(img)[1]
-    img_h = tf.shape(img)[2]
+    img_w = tf.shape(input=img)[1]
+    img_h = tf.shape(input=img)[2]
     V = tf.reshape(V, tf.stack((img_w, img_h, 1)))
-    V = tf.transpose(V, (2, 0, 1))
+    V = tf.transpose(a=V, perm=(2, 0, 1))
     V = tf.reshape(V, tf.stack((-1, img_w, img_h, 1)))
     return V

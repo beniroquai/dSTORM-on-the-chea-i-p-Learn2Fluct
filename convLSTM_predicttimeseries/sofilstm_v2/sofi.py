@@ -41,8 +41,8 @@ class SOFI(object):
     :param kwargs: args passed to create_net function. 
     """
    
-    def __init__(self, batchsize=4, Nx=128, Ny=128, img_channels=1, features_root = 9, ntimesteps=9, cost_kwargs={}, **kwargs):
-        tf.reset_default_graph()
+    def __init__(self, batchsize=4, Nx=128, Ny=128, img_channels=1, features_root = 9, ntimesteps=9, cost="mean_squared_error", cost_kwargs={}, **kwargs):
+        tf.compat.v1.reset_default_graph()
 
         # basic variables
         self.summaries = True
@@ -51,20 +51,20 @@ class SOFI(object):
         self.features_root = features_root
 
         # placeholders for input x and y
-        self.x = tf.placeholder("float", shape=[batchsize, Nx, Ny, ntimesteps]) # We have to encode the timestep in the batchsize, otherwise not working; assumming: nbatch*ntimesteps, nx, ny, nc 
-        self.y = tf.placeholder("float", shape=[batchsize, Nx, Ny, 1])
-        self.phase = tf.placeholder(tf.bool, name='phase')
-        self.keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
+        self.x = tf.compat.v1.placeholder("float", shape=[batchsize, Nx, Ny, ntimesteps]) # We have to encode the timestep in the batchsize, otherwise not working; assumming: nbatch*ntimesteps, nx, ny, nc 
+        self.y = tf.compat.v1.placeholder("float", shape=[batchsize, Nx, Ny, 1])
+        self.phase = tf.compat.v1.placeholder(tf.bool, name='phase')
+        self.keep_prob = tf.compat.v1.placeholder(tf.float32) #dropout (keep probability)
 
         # reused variables
-        self.nx = tf.shape(self.x)[1]
-        self.ny = tf.shape(self.x)[2]       
-        self.num_examples = tf.shape(self.x)[0]            
+        self.nx = tf.shape(input=self.x)[1]
+        self.ny = tf.shape(input=self.x)[2]       
+        self.num_examples = tf.shape(input=self.x)[0]            
 
         # variables need to be calculated
         self.recons = sofi_decoder(self.x, self.y, self.keep_prob, self.phase, self.img_channels, self.features_root)
-        self.loss = self._get_cost()
-        self.valid_loss = self._get_cost()
+        self.loss = self._get_cost(cost, cost_kwargs)
+        self.valid_loss = self._get_cost(cost, cost_kwargs)
         self.avg_psnr = self._get_measure('avg_psnr')
         self.valid_avg_psnr =  self._get_measure('avg_psnr')
 
@@ -88,7 +88,7 @@ class SOFI(object):
             term1 = log(tf.constant(1, dtype), 10.)
             term2 = log(mse, 10.)
             psnr = tf.scalar_mul(20., term1) - tf.scalar_mul(10., term2)
-            avg_psnr = tf.reduce_mean(psnr)
+            avg_psnr = tf.reduce_mean(input_tensor=psnr)
             result = avg_psnr
 
         else:
@@ -101,13 +101,13 @@ class SOFI(object):
         Constructs the cost function.
 
         """
-        loss = tf.losses.mean_squared_error(self.recons, self.y)
+        loss = tf.compat.v1.losses.mean_squared_error(self.recons, self.y)
 
         return loss     
     
     # save graph
     def savegraph(self, model_path, save_path):
-        tf.train.write_graph(model_path, save_path,
+        tf.io.write_graph(model_path, save_path,
                      'saved_model.pb', as_text=False)
         return save_path+'saved_model.pb'
     
@@ -121,8 +121,8 @@ class SOFI(object):
         :returns prediction: The unet prediction Shape [n, px, py, labels] (px=nx-self.offset/2) 
         """
         
-        init = tf.global_variables_initializer()
-        with tf.Session() as sess:
+        init = tf.compat.v1.global_variables_initializer()
+        with tf.compat.v1.Session() as sess:
             # Initialize variables
             sess.run(init)
         
@@ -136,8 +136,8 @@ class SOFI(object):
         return prediction
     
     def saveTFLITE(self, model_path, outputmodelpath='converted_model.tflite'):
-        init = tf.global_variables_initializer()
-        with tf.Session() as sess:
+        init = tf.compat.v1.global_variables_initializer()
+        with tf.compat.v1.Session() as sess:
             # Initialize variables
             sess.run(init)
         
@@ -157,7 +157,7 @@ class SOFI(object):
         :param model_path: path to file system location
         """
         
-        saver = tf.train.Saver()
+        saver = tf.compat.v1.train.Saver()
         save_path = saver.save(sess, model_path)
         return save_path
     
@@ -169,7 +169,7 @@ class SOFI(object):
         :param model_path: path to file system checkpoint location
         """
         
-        saver = tf.train.Saver()
+        saver = tf.compat.v1.train.Saver()
         saver.restore(sess, model_path)
         logging.info("Model restored from file: %s" % model_path)
         
@@ -181,8 +181,7 @@ class SOFI(object):
         :param model_path: path to file system location
         """
         
-        saver = tf.train.Saver()
+        saver = tf.compat.v1.train.Saver()
         save_path = saver.save(sess, model_path)
         return save_path
-    
     

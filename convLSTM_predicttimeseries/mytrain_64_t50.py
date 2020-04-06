@@ -1,3 +1,7 @@
+# Need to do that for tflite and need to do it before importing tensorflow
+import os
+os.environ['TF_ENABLE_CONTROL_FLOW_V2'] = '1'
+
 import sofilstm.sofi as sofi
 import sofilstm.train as train
 from sofilstm import image_util
@@ -7,6 +11,8 @@ import numpy as np
 import os
 from sys import platform
 # This is taken from the ScaDec from Ulugbek Kamilov 2018 et al. which is a copy of the tf_unet
+
+
 
 ####################################################
 ####              HYPER-PARAMETERS               ###
@@ -43,7 +49,7 @@ nn_name = 'upsamping_2_noconv_100x100_2'
 if platform == "linux" or platform == "linux2":
 	train_data_path = './data/data_downconverted'; upscaling=4 # linux
 elif platform == "darwin":
-	train_data_path = './data/test'; upscaling=4 # OS X
+	train_data_path = './test'; upscaling=4 # OS X
 elif platform == 'win32':
    train_data_path = '.\\data\\data_downconverted_4'; upscaling=2
 

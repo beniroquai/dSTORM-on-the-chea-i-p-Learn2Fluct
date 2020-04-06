@@ -62,22 +62,18 @@ class trainer_sofi(object):
                                                         decay_steps=training_iters,  
                                                         decay_rate=decay_rate, 
                                                         staircase=True)
-            
-            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-            with tf.control_dependencies(update_ops):
-                optimizer = tf.train.MomentumOptimizer(learning_rate=self.learning_rate_node, momentum=momentum,
-                                                   **self.opt_kwargs).minimize(self.net.loss,
-                                                                                global_step=global_step)
+
+            optimizer = tf.train.MomentumOptimizer(learning_rate=self.learning_rate_node, momentum=momentum,
+                                               **self.opt_kwargs).minimize(self.net.loss,
+                                                                           global_step=global_step)
         elif self.optimizer == "adam":
             learning_rate = self.opt_kwargs.pop("learning_rate", 0.001)
             self.learning_rate_node = tf.Variable(learning_rate)
             
-            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-            with tf.control_dependencies(update_ops):
-                optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate_node, 
-                                                   **self.opt_kwargs).minimize(self.net.loss,
-                                                                                global_step=global_step)
-        
+            optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate_node, 
+                                               **self.opt_kwargs).minimize(self.net.loss,
+                                                                            global_step=global_step)
+    
         return optimizer
         
     def _initialize(self, training_iters, output_path, restore, prediction_path):
@@ -136,8 +132,10 @@ class trainer_sofi(object):
 
         # create output path
         directory = os.path.join(output_path, "final/")
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        if tf.gfile.Exists(output_path):
+            tf.gfile.DeleteRecursively(output_path)
+        tf.gfile.MakeDirs(output_path)
+
 
         save_path = os.path.join(directory, "model.cpkt")
         if epochs == 0:
@@ -246,6 +244,7 @@ class trainer_sofi(object):
         self.record_summary(summary_writer, 'valid_avg_psnr', avg_psnr, step)
 
         logging.info("Validation Statistics, validation loss= {:.4f}, Avg PSNR= {:.4f}".format(loss, avg_psnr))
+
 
         util.save_mat(prediction, "%s/%s.mat"%(self.prediction_path, name),'result')
 
