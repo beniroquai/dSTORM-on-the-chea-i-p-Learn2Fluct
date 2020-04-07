@@ -87,16 +87,19 @@ tf.reset_default_graph()
 
 height = 32
 width = 32 
-Ntime = 1
+Ntime = 2
 channel = 1
 hidden_num = 1
 batch_size = 1
 
 
-p_input = tf.placeholder(tf.float32, [batch_size, height, width, Ntime, channel])
-p_label = tf.placeholder(tf.float32, [batch_size, height, width, 3])
-
-mygroundtruth = tf.constant(np.zeros((batch_size, height, width, 1)))
+if(1):
+    input_ = tf.placeholder(tf.float32, [height, width, Ntime], 'input_')
+    p_input = tf.reshape(input_, [batch_size, height, width, Ntime, channel])
+else:
+    input_ = tf.placeholder(tf.float32,[batch_size, height, width, Ntime, channel], 'input_')
+    p_input = input_
+mygroundtruth = tf.constant(np.zeros((height, width)))
 
 p_input_list = tf.split(p_input,Ntime,3)
 p_input_list = [tf.squeeze(p_input_, [3]) for p_input_ in p_input_list]
@@ -112,7 +115,7 @@ with tf.variable_scope("ConvLSTM") as scope: # as BasicLSTMCell
         # ConvCell takes Tensor with size [batch_size, height, width, channel].
         t_output, state = cell(p_input_, state)
         
-output_ = tf.identity(t_output)
+output_ = tf.identity(tf.squeeze(t_output), name='output_')
 myopt = tf.reduce_mean(input_tensor=tf.compat.v1.losses.mean_squared_error(output_, mygroundtruth))
 sess = tf.compat.v1.Session()
 
@@ -121,10 +124,10 @@ sess = tf.compat.v1.Session()
 sess.run(init)
 
 
-converter = tf.lite.TFLiteConverter.from_session(sess, [p_input], [output_])
-converter.experimental_new_converter = True  # Add this line
+converter = tf.lite.TFLiteConverter.from_session(sess, [input_], [output_])
+#converter.experimental_new_converter = True  # Add this line
 log_dir = './'
-converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS]
+#converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS]
 tflite_model = converter.convert()
 open(log_dir+'mytflite.tflite', "wb").write(tflite_model)
 

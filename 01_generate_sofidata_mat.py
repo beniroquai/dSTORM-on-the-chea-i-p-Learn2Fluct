@@ -13,7 +13,7 @@ from scipy.ndimage import gaussian_filter
 
 # This script automatically downloads a bunch of images from the OMERO web viwer
 # https://idr.openmicroscopy.org/mapr/cellline/?experimenter=-1
-idataset = 2
+idataset = 3
 if(idataset==1):
     image_id_min = 4995167+57
     which_channel = 'R'# some actin stained U2OS cells 

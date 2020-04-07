@@ -143,11 +143,36 @@ class SOFI(object):
         
             # Restore model weights from previously saved model
             self.restore(sess, model_path)
-                    
-            converter = tf.lite.TFLiteConverter.from_session(sess, [self.x], [self.recons])
+            
+    
+            converter = tf.lite.TFLiteConverter.from_session(sess, [self.x], [tf.squeeze(self.recons)])
+            #converter.experimental_new_converter = True  # Add this line
+            #converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS]
             tflite_model = converter.convert()
             open(outputmodelpath, "wb").write(tflite_model)
 
+    def simple_save(self, model_path, outputmodelpath='converted_model.pb'):
+            """
+            Saves the current session to a checkpoint
+            
+            :param sess: current session
+            :param model_path: path to file system location
+            """
+            init = tf.global_variables_initializer()
+            with tf.Session() as sess:
+                # Initialize variables
+                sess.run(init)
+            
+                # Restore model weights from previously saved model
+                self.restore(sess, model_path)
+                
+                tf.saved_model.simple_save(sess, outputmodelpath, inputs={"x": self.x},
+        							   outputs={ "y": self.recons})
+                
+                
+            saver = tf.train.Saver()
+            save_path = saver.save(sess, model_path)
+            return save_path
 
     def save(self, sess, model_path):
         """
