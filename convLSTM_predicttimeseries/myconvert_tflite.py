@@ -20,18 +20,18 @@ os.environ['CUDA_VISIBLE_DEVICES'] = gpu_ind; # 0,1,2,3
 # Because we have real & imaginary part of our input, data_channels is set to 2
 data_channels = 1
 truth_channels = 1
-features_root = 16
+features_root = 1
 
 # args for training
 batch_size = 1
-ntimesteps = 50    # number of time-steps for one 3D volume
+ntimesteps = 100    # number of time-steps for one 3D volume
 valid_size = batch_size  # batch size for validating (must be same as batch_size!)
 optimizer = "adam"  # optimizer we want to use, 'adam' or 'momentum'
-Nx, Ny = 200, 200 # final size of the image
+Nx, Ny = 100, 100 # final size of the image
 
 
 # here specify the path of the model you want to load
-model_path = './final_tmp/'
+model_path = './final/'
 
 
 

@@ -21,15 +21,14 @@ from sys import platform
 # Because we have real & imaginary part of our input, data_channels is set to 2
 data_channels = 1
 truth_channels = 1
-features_root = 16
+features_root = 1
 # args for training
-batch_size = 2     # batch size for training
-ntimesteps = 50    # number of time-steps for one 3D volume
-valid_size = batch_size  # batch size for validating (must be same as batch_size!)
+batch_size = 4     # batch size for training
+ntimesteps = 30    # number of time-steps for one 3D volume
 optimizer = "adam"  # optimizer we want to use, 'adam' or 'momentum'
-Nx, Ny = 200, 200 # final size of the image
+Nx, Ny = 128, 128 # final size of the image
 
-learning_rate = 0.001
+learning_rate = 0.01
 display_step = 50
 epochs = 30
 training_iters = 200
@@ -52,8 +51,10 @@ elif platform == "darwin":
 	train_data_path = './test'; upscaling=4 # OS X
 elif platform == 'win32':
    train_data_path = '.\\data\\data_downconverted_2'; upscaling=2
+   train_data_path = '.\\data\\data_downconverted_2'; upscaling=2
    train_data_path = '.\\data\\data_raw'; upscaling=1
-nn_name = 'upsamping_'+str(upscaling)+'_noconv_'+str(Nx)+'x'+str(Ny)+'_time_'+str(ntimesteps)
+   train_data_path = '.\\data\\data_synthetic_2'; upscaling=2
+nn_name = 'upsamping_'+str(upscaling)+'_lstm4_'+str(Nx)+'x'+str(Ny)+'_time_'+str(ntimesteps)+'_batchnorm_new2'
                            
 # Specify the location with for the validation data #
 data_provider = image_util.ImageDataProvider_hdf5_vol(train_data_path, upscaling=upscaling, nchannels = 1, mysize=(Nx, Ny), ntimesteps=ntimesteps)
@@ -92,4 +93,4 @@ prediction_path = output_root + nn_name+'_gpu' + gpu_ind + '/validation'
 trainer = train.trainer_sofi(net, batch_size=batch_size, optimizer = "adam")
 
 # train 
-path = trainer.train(data_provider, output_path, valid_provider, valid_size, training_iters=training_iters, epochs=epochs, display_step=display_step, save_epoch=save_epoch, prediction_path=prediction_path)
+path = trainer.train(data_provider, output_path, valid_provider, batch_size, training_iters=training_iters, epochs=epochs, display_step=display_step, save_epoch=save_epoch, prediction_path=prediction_path)

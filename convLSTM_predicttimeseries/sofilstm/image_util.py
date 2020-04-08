@@ -182,24 +182,20 @@ class ImageDataProvider_hdf5_vol(BaseDataProvider):
         self._cylce_file()
         self.image_name = self.data_files[self.ids[self.file_idx]]
         # print('Now providing next Mat-file: '+self.image_name)
-        if(False):
-            # this is for MAT-files without --v7.3 option -> HDF5 compatible
-            data = self._load_file(os.path.join(self.image_name, self.holoname+'.mat'), self.holoname)
-            label = self._load_file(os.path.join(self.image_name, self.gtname+'.mat'), self.gtname)
-        else:            
-            # this is for MAT-files with --v7.3 option
-            data = self._load_file_mat(os.path.join(self.image_name, self.holoname+'.mat'), self.holoname)
-            label = self._load_file_mat(os.path.join(self.image_name, self.gtname+'.mat'), self.gtname)
-            if(not(self.mysize is None)):
+                
+        # this is for MAT-files with --v7.3 option
+        data = self._load_file_mat(os.path.join(self.image_name, self.holoname+'.mat'), self.holoname)
+        label = self._load_file_mat(os.path.join(self.image_name, self.gtname+'.mat'), self.gtname)
+        if(not(self.mysize is None)):
 				# randomly extract a smaller roi
-                if((data.shape[0]-self.mysize[0])//2)>0:
-                    mycenter_x = self.mysize[0]//2+np.random.randint(0,(data.shape[0]-self.mysize[0])//2)
-                    mycenter_y = self.mysize[1]//2+np.random.randint(0,(data.shape[1]-self.mysize[1])//2)
-                    data = nip.extract(nip.image(data), (self.mysize[0]//self.upscaling,self.mysize[1]//self.upscaling, data.shape[-1]), (mycenter_x//self.upscaling,mycenter_y//self.upscaling))
-                    label = nip.extract(nip.image(label), (self.mysize[0], self.mysize[1]), (mycenter_x,mycenter_y))
-                else:
-                    data = nip.extract(nip.image(data), (self.mysize[0]//self.upscaling,self.mysize[1]//self.upscaling, data.shape[-1]))
-                    label = nip.extract(nip.image(label), (self.mysize[0], self.mysize[1]))
+            if(False):#(data.shape[0]-self.mysize[0])//2)>0:
+                mycenter_x = self.mysize[0]//2+np.random.randint(0,(data.shape[0]-self.mysize[0])//2)
+                mycenter_y = self.mysize[1]//2+np.random.randint(0,(data.shape[1]-self.mysize[1])//2)
+                data = nip.extract(nip.image(data), (self.mysize[0]//self.upscaling,self.mysize[1]//self.upscaling, data.shape[-1]), (mycenter_x//self.upscaling,mycenter_y//self.upscaling))
+                label = nip.extract(nip.image(label), (self.mysize[0], self.mysize[1]), (mycenter_x,mycenter_y))
+            else:
+                data = nip.extract(nip.image(data), (self.mysize[0]//self.upscaling,self.mysize[1]//self.upscaling, data.shape[-1]))
+                label = nip.extract(nip.image(label), (self.mysize[0], self.mysize[1]))
 
         data = self._process_data(data)
         label = self._process_truths(label)

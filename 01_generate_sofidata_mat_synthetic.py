@@ -73,15 +73,15 @@ is_safemat = True   # want to store the data as mats?
 
 n_modes = 30
 n_frames = 100
-gaussianstd= 1
-n_photons = 100
+kernelsize= 2
+n_photons = 50
 n_readnoise = 10
-quality_jpeg = 70
+quality_jpeg = 60
 downscaling = 2
 mode_max_angle = 15 # degrees
 mysize_new = (400,400)  # size for the dataset 
 
-myfolder = './convLSTM_predicttimeseries/data/data_downconverted_'+str(downscaling)
+myfolder = './convLSTM_predicttimeseries/data/data_synthetic_'+str(downscaling)
 myfolder_raw = myfolder + './'
 
 try: os.mkdir(myfolder)
@@ -157,7 +157,7 @@ for i_images in range(num_images):
 
         
         # illuminate the sample with the structured illumination 
-        myresultframe = gaussian_filter(myallmodes*mysample, sigma=gaussianstd)
+        myresultframe = gaussian_filter(myallmodes*mysample, sigma=kernelsize)
         
         # add noise
         myresultframe = nip.noise.poisson(myresultframe, n_photons)
@@ -196,12 +196,14 @@ for i_images in range(num_images):
         tif.imsave(myfolderdataset+'mytest_gt.tif', np.float32(mysample))
     
     # show result
-    plt.subplot(131)
+    plt.subplot(221), plt.title('RAW Frame')
     plt.imshow(myallframes_obj[:,:,0]), plt.colorbar()
-    plt.subplot(132)
+    plt.subplot(222), plt.title('illumination pattern')
     plt.imshow(myallframes_illu[0,:,:]), plt.colorbar()
-    plt.subplot(133)
+    plt.subplot(223), plt.title('RAW object ')
     plt.imshow(mysample), plt.colorbar()
+    plt.subplot(224) , plt.title('STD of measurements')
+    plt.imshow(np.std(myallframes_obj[:,:,0:30], -1)), plt.colorbar()    
     plt.show()
         
 

@@ -25,10 +25,26 @@ truth_channels = 1
 gpu_ind = '0'
 os.environ['CUDA_VISIBLE_DEVICES'] = gpu_ind; # 0,1,2,3
 
+# Because we have real & imaginary part of our input, data_channels is set to 2
+data_channels = 1
+truth_channels = 1
+features_root = 1
+# args for training
+batch_size = 1     # batch size for training
+ntimesteps = 30    # number of time-steps for one 3D volume
+optimizer = "adam"  # optimizer we want to use, 'adam' or 'momentum'
+Nx, Ny = 128, 128 # final size of the image
+
+learning_rate = 0.01
+display_step = 50
+epochs = 300
+training_iters = 200
+save_epoch = 1
+
+
 
 # here specify the path of the model you want to load
-model_path = './networks/upsamping_2_noconv_100x100_2_gpu0/models/final/'
-
+model_path = './networks/upsamping_2_lstm4_128x128_time_30_batchnorm_new2_gpu0/models/final/'
 
 ####################################################
 ####                 FUNCTIONS                   ###
@@ -46,25 +62,10 @@ def preprocess(data, mysize=None):
 ####                lOAD MODEL                   ###
 ####################################################
 
-# set up args for the unet, should be exactly the same as the loading model
-kwargs = {
-    "layers": 5,
-    "conv_times": 2,
-    "features_root": 64,
-    "filter_size": 3,
-    "pool_size": 2,
-    "summaries": True
-}
-
-# args for training
-batch_size = 1  # batch size for training
-ntimesteps = 1  # number of time-steps for one 3D volume
-valid_size = batch_size  # batch size for validating (must be same as batch_size!)
-Nx, Ny = 100, 100
 
 path_mydata = './test/sofi.mat'
 path_mydata = './test/sofi_ecoli.mat'
-
+#%%
 #preparing training data
 from skimage.transform import resize
 data_mat = spio.loadmat(path_mydata , squeeze_me=True)
@@ -78,7 +79,7 @@ data = np.expand_dims(data,0)
 
 
 
-net = sofi.SOFI(batchsize=batch_size, Nx=Nx*upscaling, Ny=Ny*upscaling, ntimesteps=ntimesteps, cost="mean_squared_error", **kwargs)
+net = sofi.SOFI(batchsize=batch_size, Nx=Nx, Ny=Ny, img_channels=1, features_root=features_root, ntimesteps=ntimesteps, cost="mean_squared_error")
 
 
 ####################################################
@@ -96,7 +97,7 @@ net = sofi.SOFI(batchsize=batch_size, Nx=Nx*upscaling, Ny=Ny*upscaling, ntimeste
 predict = net.predict(model_path+'model.cpkt', data, 1, True)
 #predict(self, model_path, x_test, keep_prob, phase)
 
-#%% visualize 
+#% visualize 
 
 plt.figure()
 plt.subplot(321), plt.title('prediction')

@@ -44,7 +44,10 @@ class SOFI(object):
     def __init__(self, batchsize=4, Nx=128, Ny=128, img_channels=1, features_root = 9, ntimesteps=9, cost_kwargs={}, **kwargs):
         tf.reset_default_graph()
 
-        # basic variables
+       # reused variables
+        self.nx = Nx
+        self.ny = Ny
+        self.batchsize = batchsize
         self.summaries = True
         self.img_channels = img_channels
         self.ntimesteps = ntimesteps
@@ -56,13 +59,14 @@ class SOFI(object):
         self.phase = tf.placeholder(tf.bool, name='phase')
         self.keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
-        # reused variables
-        self.nx = tf.shape(self.x)[1]
-        self.ny = tf.shape(self.x)[2]       
-        self.num_examples = tf.shape(self.x)[0]            
+             
 
         # variables need to be calculated
-        self.recons = sofi_decoder(self.x, self.y, self.keep_prob, self.phase, self.img_channels, self.features_root)
+        self.input_ = tf.reshape(self.x, [self.batchsize*self.nx*self.ny*self.ntimesteps])
+        self.input_reshape = tf.reshape(self.input_, [self.batchsize, self.nx, self.ny, self.ntimesteps])
+        self.recons = sofi_decoder(self.input_reshape, self.y, self.keep_prob, self.phase, self.img_channels, self.features_root)
+        self.output_ = tf.reshape(self.recons, [self.batchsize*self.nx*self.ny])
+ 
         self.loss = self._get_cost()
         self.valid_loss = self._get_cost()
         self.avg_psnr = self._get_measure('avg_psnr')
@@ -145,7 +149,7 @@ class SOFI(object):
             self.restore(sess, model_path)
             
     
-            converter = tf.lite.TFLiteConverter.from_session(sess, [self.x], [tf.squeeze(self.recons)])
+            converter = tf.lite.TFLiteConverter.from_session(sess, [self.input_], [tf.squeeze(self.output_)])
             #converter.experimental_new_converter = True  # Add this line
             #converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS]
             tflite_model = converter.convert()
@@ -166,13 +170,10 @@ class SOFI(object):
                 # Restore model weights from previously saved model
                 self.restore(sess, model_path)
                 
-                tf.saved_model.simple_save(sess, outputmodelpath, inputs={"x": self.x},
-        							   outputs={ "y": self.recons})
-                
-                
-            saver = tf.train.Saver()
-            save_path = saver.save(sess, model_path)
-            return save_path
+                tf.saved_model.simple_save(sess, outputmodelpath, inputs={"x": self.input_},
+        							   outputs={ "y": self.output_})
+
+
 
     def save(self, sess, model_path):
         """

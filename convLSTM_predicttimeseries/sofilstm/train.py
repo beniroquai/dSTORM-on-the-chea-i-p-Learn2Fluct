@@ -256,4 +256,4 @@ class trainer_sofi(object):
         summary.value.add(tag=name, simple_value = value)
         writer.add_summary(summary, step)
         writer.flush()
-
+        

@@ -87,13 +87,13 @@ tf.reset_default_graph()
 
 height = 32
 width = 32 
-Ntime = 2
-channel = 1
+Ntime = 4
+channel = 2
 hidden_num = 1
 batch_size = 1
 
 
-if(1):
+if(0):
     input_ = tf.placeholder(tf.float32, [height, width, Ntime], 'input_')
     p_input = tf.reshape(input_, [batch_size, height, width, Ntime, channel])
 else:
@@ -105,7 +105,8 @@ p_input_list = tf.split(p_input,Ntime,3)
 p_input_list = [tf.squeeze(p_input_, [3]) for p_input_ in p_input_list]
 
 cell = ConvLSTMCell(hidden_num)
-state = cell.zero_state(batch_size, height, width)
+state = tf.truncated_normal(shape=[batch_size, width, height, hidden_num*2], stdv=0.1)
+#state = cell.zero_state(batch_size, height, width)
 
 with tf.variable_scope("ConvLSTM") as scope: # as BasicLSTMCell
     for i, p_input_ in enumerate(p_input_list):
