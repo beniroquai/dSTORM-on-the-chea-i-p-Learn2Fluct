@@ -16,16 +16,16 @@ class ConvLSTMCell(object):
   The implementation is based on http://arxiv.org/abs/1506.04214. 
    and `BasicLSTMCell` in TensorFlow. 
   """
-  def __init__(self, hidden_num, filter_size=[3,3], 
+  def __init__(self, num_features, filter_size=[3,3], 
                forget_bias=1.0, activation=tanh, name="ConvLSTMCell"):
-    self.hidden_num = hidden_num
+    self.num_features = num_features
     self.filter_size = filter_size
     self.forget_bias = forget_bias
     self.activation = activation
     self.name = name
 
   def zero_state(self, batch_size, height, width):
-    return tf.zeros([batch_size, height, width, self.hidden_num*2])
+    return tf.zeros([batch_size, height, width, self.num_features*2])
 
   def __call__(self, inputs, state, scope=None):
     """Convolutional Long short-term memory cell (ConvLSTM)."""
@@ -33,10 +33,35 @@ class ConvLSTMCell(object):
       c, h = tf.split(state, 2, 3)
 
       # batch_size * height * width * channel
-      concat = _conv([inputs, h], 4 * self.hidden_num, self.filter_size)
+      concat = _conv([inputs, h], 4 * self.num_features, self.filter_size)
 
       # i = input_gate, j = new_input, f = forget_gate, o = output_gate
       i, j, f, o = tf.split(concat, 4, 3)
+      
+      if self._peephole:
+          i += tf.get_variable('W_ci', c.shape[1:]) * c
+          f += tf.get_variable('W_cf', c.shape[1:]) * c
+      
+      if self._normalize:
+          j = tf.contrib.layers.layer_norm(j)
+          i = tf.contrib.layers.layer_norm(i)
+          f = tf.contrib.layers.layer_norm(f)
+          
+      f = tf.sigmoid(f + self._forget_bias)
+      i = tf.sigmoid(i)
+      c = c * f + i * self._activation(j)
+      
+      if self._peephole:
+          o += tf.get_variable('W_co', c.shape[1:]) * c
+          
+      if self._normalize:
+          o = tf.contrib.layers.layer_norm(o)
+          c = tf.contrib.layers.layer_norm(c)
+          
+      o = tf.sigmoid(o)
+      new_h = o * self._activation(c)
+
+
 
       new_c = (c * sigmoid(f + self.forget_bias) + sigmoid(i) *
                self.activation(j))
@@ -89,7 +114,7 @@ height = 32
 width = 32 
 Ntime = 4
 channel = 2
-hidden_num = 1
+num_features = 4
 batch_size = 1
 
 
@@ -104,9 +129,9 @@ mygroundtruth = tf.constant(np.zeros((height, width)))
 p_input_list = tf.split(p_input,Ntime,3)
 p_input_list = [tf.squeeze(p_input_, [3]) for p_input_ in p_input_list]
 
-cell = ConvLSTMCell(hidden_num)
-state = tf.truncated_normal(shape=[batch_size, width, height, hidden_num*2], stdv=0.1)
-#state = cell.zero_state(batch_size, height, width)
+cell = ConvLSTMCell(num_features)
+#state = tf.truncated_normal(shape=[batch_size, width, height, num_features*2], stdv=0.1)
+state = cell.zero_state(batch_size, height, width)
 
 with tf.variable_scope("ConvLSTM") as scope: # as BasicLSTMCell
     for i, p_input_ in enumerate(p_input_list):
@@ -116,8 +141,12 @@ with tf.variable_scope("ConvLSTM") as scope: # as BasicLSTMCell
         # ConvCell takes Tensor with size [batch_size, height, width, channel].
         t_output, state = cell(p_input_, state)
         
+
+
 output_ = tf.identity(tf.squeeze(t_output), name='output_')
 myopt = tf.reduce_mean(input_tensor=tf.compat.v1.losses.mean_squared_error(output_, mygroundtruth))
+
+kjk
 sess = tf.compat.v1.Session()
 
 init = tf.compat.v1.global_variables_initializer()

@@ -54,16 +54,14 @@ class SOFI(object):
         self.features_root = features_root
 
         # placeholders for input x and y
-        self.x = tf.placeholder("float", shape=[batchsize, Nx, Ny, ntimesteps]) # We have to encode the timestep in the batchsize, otherwise not working; assumming: nbatch*ntimesteps, nx, ny, nc 
+        self.x = tf.placeholder("float", shape=[batchsize, Nx//2, Ny//2, ntimesteps]) # We have to encode the timestep in the batchsize, otherwise not working; assumming: nbatch*ntimesteps, nx, ny, nc 
         self.y = tf.placeholder("float", shape=[batchsize, Nx, Ny, 1])
         self.phase = tf.placeholder(tf.bool, name='phase')
         self.keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
-             
-
         # variables need to be calculated
-        self.input_ = tf.reshape(self.x, [self.batchsize*self.nx*self.ny*self.ntimesteps])
-        self.input_reshape = tf.reshape(self.input_, [self.batchsize, self.nx, self.ny, self.ntimesteps])
+        self.input_ = tf.reshape(self.x, [self.batchsize*self.nx*self.ny*self.ntimesteps//4])
+        self.input_reshape = tf.reshape(self.input_, [self.batchsize, self.nx//2, self.ny//2, self.ntimesteps])
         self.recons = sofi_decoder(self.input_reshape, self.y, self.keep_prob, self.phase, self.img_channels, self.features_root)
         self.output_ = tf.reshape(self.recons, [self.batchsize*self.nx*self.ny])
  

@@ -3,7 +3,7 @@ import requests
 import numpy as np
 import tifffile as tif
 import matplotlib.pyplot as plt
-
+import tifffile as tif
 
 import cv2
 import NanoImagingPack as nip
@@ -72,7 +72,7 @@ num_images = 100
 is_safemat = True   # want to store the data as mats?
 
 n_modes = 30
-n_frames = 100
+n_frames = 1000
 kernelsize= 2
 n_photons = 50
 n_readnoise = 10
@@ -96,6 +96,7 @@ for i_images in range(num_images):
     if(is_syntheticdata):
         mysample = simulatebrownian(Nx=mysize_new[0], Ny=mysize_new[0], Ngraphs=10, SizePar=2, Maxtimesteps=100)
         myimagefile = 'Syntheticdata_'+str(i_images)
+        tif.imsave(myfolder+'/'+myimagefile+'.tif', mysample/np.max(mysample))
     else:
         
         # download the image

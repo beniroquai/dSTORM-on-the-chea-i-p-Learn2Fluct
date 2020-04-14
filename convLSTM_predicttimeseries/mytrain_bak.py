@@ -4,13 +4,14 @@ os.environ['TF_ENABLE_CONTROL_FLOW_V2'] = '1'
 
 import sofilstm.sofi as sofi
 import sofilstm.train as train
-from sofilstm import image_util_preprocess
+from sofilstm import image_util
 
 import scipy.io as spio
 import numpy as np
 import os
 from sys import platform
 # This is taken from the ScaDec from Ulugbek Kamilov 2018 et al. which is a copy of the tf_unet
+
 
 
 ####################################################
@@ -29,7 +30,7 @@ Nx, Ny = 128, 128 # final size of the image
 
 learning_rate = 0.01
 display_step = 50
-epochs = 300
+epochs = 30
 training_iters = 200
 save_epoch = 1
 
@@ -52,22 +53,16 @@ elif platform == 'win32':
    train_data_path = '.\\data\\data_downconverted_2'; upscaling=2
    train_data_path = '.\\data\\data_downconverted_2'; upscaling=2
    train_data_path = '.\\data\\data_raw'; upscaling=1
-   train_data_path = '.\\data\\data'; upscaling=2
-nn_name = 'upsamping_'+str(upscaling)+'_lstm4_'+str(Nx)+'x'+str(Ny)+'_time_'+str(ntimesteps)+'_batchnorm_newdataprovider_subpixel_peep'
+   train_data_path = '.\\data\\data_synthetic_2'; upscaling=2
+nn_name = 'upsamping_'+str(upscaling)+'_lstm4_'+str(Nx)+'x'+str(Ny)+'_time_'+str(ntimesteps)+'_batchnorm_new2'
                            
 # Specify the location with for the validation data #
-data_provider = image_util_preprocess.ImageDataProvider(train_data_path, nchannels = 1, 
-                mysize=(Nx, Ny), ntimesteps=ntimesteps, downscaling=upscaling, test=False, \
-                n_modes = 50, mode_max_angle = 15, kernel_size = 1, n_photons = 100, n_readnoise = 10, 
-                downsampling = 1, kernelsize=1, quality_jpeg=80)
+data_provider = image_util.ImageDataProvider_hdf5_vol(train_data_path, upscaling=upscaling, nchannels = 1, mysize=(Nx, Ny), ntimesteps=ntimesteps)
 
-valid_provider = image_util_preprocess.ImageDataProvider(train_data_path, nchannels = 1, 
-                mysize=(Nx, Ny), ntimesteps=ntimesteps, downscaling=upscaling, test=False, \
-                n_modes = 50, mode_max_angle = 15, kernel_size = 1, n_photons = 100, n_readnoise = 10, 
-                downsampling = 1, kernelsize=1, quality_jpeg=80)
+# Specify the location with for the validation data #
+valid_data_path = train_data_path#'./data_32bit_for_unet'
+valid_provider = image_util.ImageDataProvider_hdf5_vol(valid_data_path, upscaling=upscaling, nchannels = 1, mysize=(Nx, Ny), ntimesteps=ntimesteps)
 
-    
-    
 
 ####################################################
 ####                  NETWORK                    ###
@@ -94,7 +89,11 @@ output_root = 'networks/'
 output_path = output_root+ nn_name+'_gpu' + gpu_ind + '/models'
 prediction_path = output_root + nn_name+'_gpu' + gpu_ind + '/validation'
 
-
+savescripts(output_path)
+def savescripts(mypath='./'):
+    from shutil import copyfile, copytree
+    copyfile('./mytrain.py', mypath+'/mytrain.py')
+    copytree('./sofilstm', mypath+'/sofilstm')
 # make a trainer for muscat
 trainer = train.trainer_sofi(net, batch_size=batch_size, optimizer = "adam")
 

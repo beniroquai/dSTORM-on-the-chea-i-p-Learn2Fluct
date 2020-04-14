@@ -24,10 +24,10 @@ features_root = 1
 
 # args for training
 batch_size = 1
-ntimesteps = 100    # number of time-steps for one 3D volume
+ntimesteps = 30    # number of time-steps for one 3D volume
 valid_size = batch_size  # batch size for validating (must be same as batch_size!)
 optimizer = "adam"  # optimizer we want to use, 'adam' or 'momentum'
-Nx, Ny = 100, 100 # final size of the image
+Nx, Ny = 128, 128 # final size of the image
 
 
 # here specify the path of the model you want to load

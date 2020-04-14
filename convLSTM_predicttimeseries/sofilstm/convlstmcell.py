@@ -50,6 +50,7 @@ class ConvLSTMCell_lite(tf.compat.v1.lite.experimental.nn.TFLiteLSTMCell): #tf.c
   def call(self, x, state):
     c, h = state
 
+    
     x = tf.reshape(x, [self._timesteps, self._shape[0], self._shape[1]])
     x = tf.concat([tf.expand_dims(x, -1), h], axis=self._feature_axis)
     
@@ -244,38 +245,78 @@ class ConvLSTMCell_lite(tf.compat.v1.lite.experimental.nn.TFLiteLSTMCell): #tf.c
 
 #https://github.com/iwyoo/ConvLSTMCell-tensorflow/blob/master/ConvLSTMCell.py 
 class ConvLSTMCell(object):
-  """ Convolutional LSTM network cell (ConvLSTMCell).
-  The implementation is based on http://arxiv.org/abs/1506.04214. 
-   and `BasicLSTMCell` in TensorFlow. 
-  """
-  def __init__(self, hidden_num, filter_size=[3,3], 
-               forget_bias=1.0, activation=tanh, name="ConvLSTMCell"):
-    self.hidden_num = hidden_num
-    self.filter_size = filter_size
-    self.forget_bias = forget_bias
-    self.activation = activation
-    self.name = name
+    """ Convolutional LSTM network cell (ConvLSTMCell).
+    The implementation is based on http://arxiv.org/abs/1506.04214. 
+     and `BasicLSTMCell` in TensorFlow. 
+    """
+    def __init__(self, num_features, filter_size=[3,3], 
+                 forget_bias=1.0, activation=tanh, name="ConvLSTMCell"):
+      self.num_features = num_features
+      self.filter_size = filter_size
+      self.forget_bias = forget_bias
+      self.activation = activation
+      self.name = name
 
-  def zero_state(self, batch_size, height, width):
-    return tf.zeros([batch_size, height, width, self.hidden_num*2])
+    def zero_state(self, batch_size, height, width):
+        return tf.zeros([batch_size, height, width, self.num_features*2])
 
-  def __call__(self, inputs, state, scope=None):
-    """Convolutional Long short-term memory cell (ConvLSTM)."""
-    with vs.variable_scope(scope or self.name): # "ConvLSTMCell"
-      c, h = tf.split(state, 2, 3)
+    def __call__(self, inputs, state, scope=None):
+        """Convolutional Long short-term memory cell (ConvLSTM)."""
+        with vs.variable_scope(scope or self.name): # "ConvLSTMCell"
+            c, h = tf.split(state, 2, 3)
 
-      # batch_size * height * width * channel
-      concat = _conv([inputs, h], 4 * self.hidden_num, self.filter_size)
+            # # batch_size * height * width * channel
+            # concat = _conv([inputs, h], 4 * self.num_features, self.filter_size)
+              
+            # # i = input_gate, j = new_input, f = forget_gate, o = output_gate
+            # i, j, f, o = tf.split(concat, 4, 3)
+              
+            # new_c = (c * sigmoid(f + self.forget_bias) + sigmoid(i) *
+            #          self.activation(j))
+            # new_h = self.activation(new_c) * sigmoid(o)
+            # new_state = tf.concat([new_c, new_h], 3)
 
-      # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-      i, j, f, o = tf.split(concat, 4, 3)
+              # return new_h, new_state
+      
+        self._normalize = False
+        self._peephole = True
+        self._forget_bias= 1.0
 
-      new_c = (c * sigmoid(f + self.forget_bias) + sigmoid(i) *
-               self.activation(j))
-      new_h = self.activation(new_c) * sigmoid(o)
-      new_state = tf.concat([new_c, new_h], 3)
+        inputs = tf.concat([inputs, h], axis=-1)#self._feature_axis)
+        n = inputs.shape[-1].value
+        m = 4 * self.num_features if self.num_features > 1 else 4
+        W = tf.get_variable('kernel', self.filter_size + [n, m])
+        y = tf.nn.convolution(inputs, W, 'SAME', data_format=None)
+        if not self._normalize:
+            y += tf.get_variable('bias', [m], initializer=tf.zeros_initializer())
+        j, i, f, o = tf.split(y, 4, axis=-1)#self._feature_axis)
+        
+        if self._peephole:
+            i += tf.get_variable('W_ci', c.shape[1:]) * c
+            f += tf.get_variable('W_cf', c.shape[1:]) * c
+              
+        if self._normalize:
+            j = tf.contrib.layers.layer_norm(j,reuse=True)
+            i = tf.contrib.layers.layer_norm(i,reuse=True)
+            f = tf.contrib.layers.layer_norm(f,reuse=True)
+        
+        f = tf.sigmoid(f + self._forget_bias)
+        i = tf.sigmoid(i)
+        c = c * f + i * self.activation(j)
+        
+        if self._peephole:
+            o += tf.get_variable('W_co', c.shape[1:]) * c
+        
+        if self._normalize:
+            o = tf.contrib.layers.layer_norm(o)
+            c = tf.contrib.layers.layer_norm(c)
+              
+        o = tf.sigmoid(o)
+        h = o * self.activation(c)
+        
+        state = tf.concat([c, h], 3) #tf.nn.rnn_cell.LSTMStateTuple(c, h)
 
-      return new_h, new_state
+        return h, state
       
 def _conv(args, output_size, filter_size, stddev=0.001, bias=True, bias_start=0.0, scope=None):
   if args is None or (nest.is_sequence(args) and not args):

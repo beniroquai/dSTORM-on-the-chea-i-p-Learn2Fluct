@@ -1,19 +1,6 @@
 
-# tf_unet is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# tf_unet is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with tf_unet.  If not, see <http://www.gnu.org/licenses/>.
-
 '''
-author: jakeret
+author: bdiederich
 '''
 from __future__ import print_function, division, absolute_import, unicode_literals
 
@@ -70,11 +57,6 @@ class BaseDataProvider(object):
     def __call__(self, nbatch):
         data,labels = self._next_timestep()
 
-        # measure the dimensions
-        Nx=data.shape[0]
-        Ny=data.shape[1]
-        Nz=data.shape[2] # equals timesteps in LSTM convention
-        
         # allocate memory
         # we concatenated the ntimesteps with nbatches due to the inability of 
         # Tensorflows conv2D layers to read 5D arrays - won't be an issue..

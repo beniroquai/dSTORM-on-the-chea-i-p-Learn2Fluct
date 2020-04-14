@@ -135,6 +135,9 @@ class trainer_sofi(object):
         if tf.gfile.Exists(output_path):
             tf.gfile.DeleteRecursively(output_path)
         tf.gfile.MakeDirs(output_path)
+        
+        # save all scripts for reproducibility
+        self.savescripts(output_path)
 
 
         save_path = os.path.join(directory, "model.cpkt")
@@ -163,7 +166,7 @@ class trainer_sofi(object):
 
             for epoch in range(epochs):
                 # select validation dataset
-                valid_x, valid_y = valid_provider(valid_size)  # , fix=True)
+                valid_x, valid_y, _ = valid_provider(valid_size)  # , fix=True)
                 util.save_mat(valid_y, "%s/%s%d.mat" % (self.prediction_path, 'origin_y', epoch), 'gt')
                 util.save_mat(valid_x, "%s/%s%d.mat" % (self.prediction_path, 'origin_x', epoch), 'sofi')
                 if(False):
@@ -171,9 +174,9 @@ class trainer_sofi(object):
                     plt.imshow(np.mean(valid_x,axis=3)[0,:,:]), plt.show()
                     plt.imshow(valid_y[0,:,:,0]), plt.show()
                 total_loss = 0
-                # batch_x, batch_y = data_provider(self.batch_size)
+                
                 for step in range((epoch*training_iters), ((epoch+1)*training_iters)):
-                    batch_x, batch_y = data_provider(self.batch_size)
+                    batch_y, batch_x, _ = data_provider(self.batch_size)
                     # Run optimization op (backprop)
                     _, loss, lr, avg_psnr = sess.run([self.optimizer,
                                                         self.net.loss, 
@@ -215,7 +218,7 @@ class trainer_sofi(object):
     
     def output_minibatch_stats(self, sess, data_provider, summary_writer, step, batch_x, batch_y):
         # Calculate batch loss and accuracy
-        batch_x, batch_y = data_provider(self.batch_size)
+        batch_y, batch_x, _ = data_provider(self.batch_size)
         summary_str, loss, predictions, avg_psnr = sess.run([self.summary_op,
                                                 self.net.loss,
                                                 self.net.recons,
@@ -231,7 +234,7 @@ class trainer_sofi(object):
         logging.info("Iter {:} (After training on the batch) Minibatch MSE= {:.4f}, Minibatch Avg PSNR= {:.4f}".format(step,loss,avg_psnr))
 
     def output_valstats(self, sess, data_provider, summary_writer, step, batch_x, batch_y, name, store_img=True):
-        batch_x, batch_y = data_provider(self.batch_size)
+        batch_y, batch_x, _ = data_provider(self.batch_size)
         prediction, loss, avg_psnr = sess.run([self.net.recons,
                                                 self.net.valid_loss,
                                                 self.net.valid_avg_psnr], 
@@ -257,3 +260,9 @@ class trainer_sofi(object):
         writer.add_summary(summary, step)
         writer.flush()
         
+        
+
+    def savescripts(self, mypath='./'):
+        from shutil import copyfile, copytree
+        copyfile('./mytrain.py', mypath+'/mytrain.py')
+        copytree('./sofilstm', mypath+'/sofilstm')

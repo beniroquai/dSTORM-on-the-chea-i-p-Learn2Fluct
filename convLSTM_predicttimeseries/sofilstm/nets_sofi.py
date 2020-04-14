@@ -8,6 +8,8 @@ import sofilstm.layers as layers
 import sofilstm.util as util
 import sofilstm.convlstm as convlstm 
 import sofilstm.convlstmcell as convlstmExperimental
+import sofilstm.subpixel as subpixel
+
 from keras.layers import BatchNormalization, Conv2D
 
 def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_root=16, kernel_size=3, pool_size=2, summaries=True):
@@ -93,7 +95,7 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
         convlstm_layer_conv_1 = tf.keras.layers.Conv2D(1, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(convlstm_layer_bn_1)
         output_std = tf.expand_dims(tf.math.reduce_std(x,axis=-1),axis=-1)
         output_mean = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
-        output_end = convlstm_layer_conv_1#+output_mean
+        output_end = convlstm_layer_conv_1+output_std
         output_raw = tf.identity(output_end, 'output_raw') # just to preserve the name
     
         psf_size = 9
@@ -138,10 +140,10 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
         p_input_list = [tf.squeeze(p_input_, [3]) for p_input_ in p_input_list]
         
 
-        hidden_num_1 = 1
+        hidden_num_1 = 4
         cell = convlstmExperimental.ConvLSTMCell(hidden_num_1) # hidden_num 1
-        # state = cell.zero_state(batch_size, Nx, Ny)
-        state = tf.truncated_normal(shape=[batch_size, Nx, Ny, hidden_num_1*2], stddev=.5)        
+        state = cell.zero_state(batch_size, Nx, Ny)
+        #state = tf.truncated_normal(shape=[batch_size, Nx, Ny, hidden_num_1*2], stddev=.5)        
         with tf.variable_scope("ConvLSTM") as scope: # as BasicLSTMCell
             for i, p_input_ in enumerate(p_input_list):
                 print('Concat timestep: '+str(i))
@@ -150,14 +152,18 @@ def sofi_decoder(x, y, keep_prob, phase, img_channels, truth_channels, features_
                 # ConvCell takes Tensor with size [batch_size, height, width, channel].
                 t_output, state = cell(p_input_, state)
                 
-        BatchNorm_1 = BatchNormalization()(t_output)
+        #BatchNorm_1 = BatchNormalization()(t_output)
+        BatchNorm_1 = t_output
   
         # conv2D 
-        Conv_1 = Conv2D(1, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(BatchNorm_1)
-         
+        Conv_0 = Conv2D(Ntime, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(BatchNorm_1)
+        Conv_1 = Conv2D(4, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(Conv_0)
+        Conv_2 = subpixel.PS(Conv_1, 2, color=False)
+        
+        
         output_std = tf.expand_dims(tf.math.reduce_std(x,axis=-1),axis=-1)
         output_mean = tf.expand_dims(tf.math.reduce_mean(x,axis=-1),axis=-1)
-        output_end = Conv_1#+output_mean
+        output_end = Conv_2#+output_mean
         output_raw = tf.identity(output_end, 'output_raw') # just to preserve the name
     
         psf_size = 9
