@@ -46,7 +46,7 @@ def simulatebrownian(Nx=100, Ny=100, Ngraphs=10, SizePar = 2, Maxtimesteps=50):
 idataset = 6
 is_syntheticdata = False
 if(idataset==1):
-    image_id_min = 4995167+57
+    image_id_min = 4995167+157
     which_channel = 'R'# some actin stained U2OS cells 
 elif(idataset==2):
 # some more actin vimentim HUVEC

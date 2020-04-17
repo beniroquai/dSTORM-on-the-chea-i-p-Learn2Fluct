@@ -42,20 +42,24 @@ data_provider = image_util_preprocess.ImageDataProvider(train_data_path, nchanne
                 downsampling = 1, kernelsize=1, quality_jpeg=80)
 
 #%%
+nimages=4
+Ys, X_noisys, X_cleans  = data_provider(nimages)
 
-Y, X_noisy, X_clean  = data_provider(1)
+for i in range(nimages):
+    Y, X_noisy, X_clean = Ys[i,], X_noisys[i,], X_cleans[i,]
 
-nip.image(np.transpose(np.squeeze(X_noisy),[2,0,1]))
-nip.image(np.transpose(np.squeeze(X_clean),[2,0,1]))
-print('X:'+str(X_noisy.shape))
-print('Y:'+str(Y.shape))
-#plt.imshow(X[:,64,:])
-
-plt.subplot(221),plt.imshow(np.squeeze(Y)), plt.colorbar()
-plt.subplot(222),plt.imshow(np.squeeze(np.std(X_noisy,-1))),plt.colorbar()
-plt.subplot(223),plt.imshow(np.squeeze(np.std(X_clean,-1))),plt.colorbar()
-plt.subplot(224),plt.imshow(np.squeeze(X_clean[:,:,:,1])),plt.colorbar()
-
-
+    # nip.image(np.transpose(np.squeeze(X_noisy),[2,0,1]))
+    # nip.image(np.transpose(np.squeeze(X_clean),[2,0,1]))
+    # print('X:'+str(X_noisy.shape))
+    # print('Y:'+str(Y.shape))
+    # #plt.imshow(X[:,64,:])
+    
+    plt.subplot(221),plt.title('SR'),plt.imshow(np.squeeze(Y)), plt.colorbar()
+    plt.subplot(222),plt.title('STD'),plt.imshow(np.squeeze(np.std(X_noisy,-1))),plt.colorbar()
+    plt.subplot(223),plt.title('Mean'),plt.imshow(np.squeeze(np.std(X_clean,-1))),plt.colorbar()
+    plt.subplot(224),plt.title('RAW'),plt.imshow(np.squeeze(X_clean[:,:,1])),plt.colorbar()
+    plt.show()
+    
+    
 import scipy.io as sio
 sio.savemat('test.mat', {"sofi": X_noisy})

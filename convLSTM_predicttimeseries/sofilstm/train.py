@@ -178,8 +178,10 @@ class trainer_sofi(object):
                 for step in range((epoch*training_iters), ((epoch+1)*training_iters)):
                     batch_y, batch_x, _ = data_provider(self.batch_size)
                     # Run optimization op (backprop)
-                    _, loss, lr, avg_psnr = sess.run([self.optimizer,
+                    _, loss, loss_l1, loss_l2, lr, avg_psnr = sess.run([self.optimizer,
                                                         self.net.loss, 
+                                                        self.net.loss_l1,
+                                                        self.net.loss_l2,
                                                         self.learning_rate_node, 
                                                         self.net.avg_psnr], 
                                                         feed_dict={self.net.x: batch_x,
@@ -190,9 +192,12 @@ class trainer_sofi(object):
                     if step % display_step == 0:
                         logging.info("Iter {:} (before training on the batch) Minibatch MSE= {:.4f}, Minibatch Avg PSNR= {:.4f}".format(step, loss, avg_psnr))
                         self.output_minibatch_stats(sess, data_provider, summary_writer, step, batch_x, batch_y)
+                        print('Loss: '+str(loss)+ ', L1:' + str(loss_l1) + ', L2:' +str(loss_l2))
                         
                     total_loss += loss
-
+                    self.record_summary(summary_writer, 'training_loss_l1', loss_l1, step)
+                    self.record_summary(summary_writer, 'training_loss_l2', loss_l2, step)
+                    
                     self.record_summary(summary_writer, 'training_loss', loss, step)
                     self.record_summary(summary_writer, 'training_avg_psnr', avg_psnr, step)
 

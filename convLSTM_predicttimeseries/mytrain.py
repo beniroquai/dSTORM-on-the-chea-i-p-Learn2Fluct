@@ -53,7 +53,7 @@ elif platform == 'win32':
    train_data_path = '.\\data\\data_downconverted_2'; upscaling=2
    train_data_path = '.\\data\\data_raw'; upscaling=1
    train_data_path = '.\\data\\data'; upscaling=2
-nn_name = 'upsamping_'+str(upscaling)+'_lstm4_'+str(Nx)+'x'+str(Ny)+'_time_'+str(ntimesteps)+'_batchnorm_newdataprovider_subpixel_peep'
+nn_name = 'upsamping_'+str(upscaling)+'_lstm4_'+str(Nx)+'x'+str(Ny)+'_time_'+str(ntimesteps)+'_batchnorm_newdataprovider_subpixel_peep_l1'
                            
 # Specify the location with for the validation data #
 data_provider = image_util_preprocess.ImageDataProvider(train_data_path, nchannels = 1, 

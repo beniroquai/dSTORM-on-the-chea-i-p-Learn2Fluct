@@ -32,6 +32,8 @@ from scipy.ndimage import gaussian_filter
 import tifffile as tif
 import matplotlib.pyplot as plt
 import cv2
+from skimage import transform
+
 
 class BaseDataProvider(object):
     """
@@ -201,7 +203,7 @@ class ImageDataProvider(BaseDataProvider):
         # ---------------------------------------------------
     
         # normalize the sample
-        mysample = nip.resample(mysample, factors =(.5,.5))
+        # mysample = nip.resample(mysample, factors =(.5,.5))
         mysample = nip.extract(mysample, self.mysize)
         mysample -= np.min(mysample)
         mysample = mysample/np.max(mysample)*self.n_photons
@@ -227,7 +229,7 @@ class ImageDataProvider(BaseDataProvider):
             myresultframe = gaussian_filter(myresultframe, sigma=self.kernelsize)
             
             # add noise
-            myresultframe = nip.noise.poisson(myresultframe, self.n_photons)
+            myresultframe = nip.noise.poisson(nip.image(myresultframe), self.n_photons)
             myresultframe = myresultframe + self.n_readnoise*np.random.randn(myresultframe.shape[0],myresultframe.shape[1])
             
 
@@ -246,14 +248,48 @@ class ImageDataProvider(BaseDataProvider):
 
         # Find all sr and sofi files in subdir    
         mysamplefiles = []
-        for file in glob.glob(mypath+"\\*.tif"):
+        for file in glob.glob(os.path.join(mypath, "*.tif")):
             mysamplefiles.append(os.path.join(file))
                     
         nfiles = int(len(mysamplefiles))
         return mysamplefiles, nfiles
 
     def _load_file(self, path):
-        mytif = tif.imread(path)
+        if(np.random.randint(0,10)<3):
+            # generate simulated data
+            if(np.random.randint(0,2)):
+                SizePar=np.random.randint(1,3)
+                Ngraphs = np.random.randint(3,14)
+                Maxtimesteps=50
+                mytif = self._simulateactin(Ngraphs=Ngraphs, SizePar=SizePar, Maxtimesteps=Maxtimesteps)
+            else:
+                NEcolis = np.random.randint(60,140)
+                mytif = self._simulateecoli(NEcolis=NEcolis)
+        else:
+            mytif = tif.imread(path)
+        mytif -= np.min(mytif)
+        mytif /= np.max(mytif)
+
+        if(np.random.randint(0,2)):
+            # random flips 
+            #print('Im applying flipping')
+            mytif = np.flip(mytif, axis=np.random.randint(0,2))
+        if(np.random.randint(0,2)):
+            # random flips 
+            #print('Im applying flipping')
+            mytif = np.fliplr(mytif)    
+            
+        if (False):#np.random.randint(0,2)):
+            # random affine transformations 
+            
+            myrot = np.random.randint(0,360)/360*np.pi
+            myscale = np.random.randint(100,150)/100
+            mytranslation = (np.random.randint(0,40),np.random.randint(0,40))
+            
+            #print('Im applying affine transformation:'+str(myrot)+' - '+str(myscale)+' - '+str(mytranslation))
+            myaffine = transform.AffineTransform(scale=(myscale,myscale), rotation=myrot,translation=mytranslation)
+            mytif = transform.warp(mytif, myaffine.inverse)
+
         return mytif
     
     def _cylce_file(self):
@@ -292,7 +328,63 @@ class ImageDataProvider(BaseDataProvider):
         truth = truth/np.max(truth)
         #truth -= .5
         return truth
+    
+  
+    def _simulateactin(self, Ngraphs=10, SizePar = 2, Maxtimesteps=50):
+        # https://ipython-books.github.io/133-simulating-a-brownian-motion/
+        # We add 10 intermediary points between two
+        # successive points. We interpolate x and y.
+        
+        Nx, Ny = self.mysize[0]*2, self.mysize[1]*2      
+        
+        myresult = np.zeros((Nx, Ny))
+        
+        for igraphs in range(Ngraphs):
+            mytimesteps=np.random.randint(20,Maxtimesteps)
+            x = np.cumsum(np.random.randn(mytimesteps))
+            y = np.cumsum(np.random.randn(mytimesteps))
+            
+            x2 = np.interp(np.arange(mytimesteps*SizePar), np.arange(mytimesteps)*SizePar, x)
+            y2 = np.interp(np.arange(mytimesteps*SizePar), np.arange(mytimesteps)*SizePar, y)
+            
+            x2-=np.min(x2)
+            y2-=np.min(y2)
+            x2/= np.max(x2)
+            y2/= np.max(y2)
+            x2 = np.int32(x2*(Nx-1))
+            y2 = np.int32(y2*(Ny-1))
+            
+        
+            
+            for ii in range(1,mytimesteps):
+                rows, cols, weights = line_aa(x2[ii], y2[ii], x2[ii-1], y2[ii-1])    # antialias line
+                myresult[rows, cols] = np.random.randint(30,90)/100
+        myresult = nip.resample(myresult, (.5,.5))      
+        myresult /= np.max(myresult)  
+        
+        return myresult
 
 
+    def _simulateecoli(self, NEcolis=10):
+         
+        Nx, Ny = self.mysize[0]*2, self.mysize[1]*2      
+        myresult = np.zeros((Nx*2, Ny*2))
+        
 
-
+        myresult = np.zeros((Nx, Ny))
+        mymaxlength = 20
+        
+        for igraphs in range(NEcolis):        
+            myx1 = np.random.randint(0,Nx)
+            myy1 = np.random.randint(0,Ny)
+            myx2 = myx1 +np.random.randint(-mymaxlength/2,mymaxlength/2)
+            myy2 = myy1 +np.random.randint(-mymaxlength/2,mymaxlength/2)
+        
+            rows, cols, weights = line_aa(myx1, myy1, myx2, myy2)    # antialias line
+            try:
+                myresult[rows, cols] = np.random.randint(30,90)/100
+            except:
+                None
+        myresult = nip.resample(myresult, (.5,.5))      
+        myresult /= np.max(myresult)  
+        return myresult

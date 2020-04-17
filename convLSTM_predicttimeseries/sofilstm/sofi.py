@@ -41,7 +41,7 @@ class SOFI(object):
     :param kwargs: args passed to create_net function. 
     """
    
-    def __init__(self, batchsize=4, Nx=128, Ny=128, img_channels=1, features_root = 9, ntimesteps=9, cost_kwargs={}, **kwargs):
+    def __init__(self, batchsize=4, Nx=128, Ny=128, img_channels=1, features_root = 9, ntimesteps=9, lambda_l1=0.1, lambda_l2=1., cost_kwargs={}, **kwargs):
         tf.reset_default_graph()
 
        # reused variables
@@ -52,6 +52,8 @@ class SOFI(object):
         self.img_channels = img_channels
         self.ntimesteps = ntimesteps
         self.features_root = features_root
+        self.lambda_l1 = lambda_l1
+        self.lambda_l2 = lambda_l2
 
         # placeholders for input x and y
         self.x = tf.placeholder("float", shape=[batchsize, Nx//2, Ny//2, ntimesteps]) # We have to encode the timestep in the batchsize, otherwise not working; assumming: nbatch*ntimesteps, nx, ny, nc 
@@ -65,8 +67,14 @@ class SOFI(object):
         self.recons = sofi_decoder(self.input_reshape, self.y, self.keep_prob, self.phase, self.img_channels, self.features_root)
         self.output_ = tf.reshape(self.recons, [self.batchsize*self.nx*self.ny])
  
-        self.loss = self._get_cost()
-        self.valid_loss = self._get_cost()
+        # training loss
+        self.loss_l1, self.loss_l2 = self._get_cost()
+        self.loss = self.lambda_l1*self.loss_l1 + self.lambda_l2*self.loss_l2
+        
+        # valid loss
+        self.valid_loss_l1, self.valid_loss_l2 = self._get_cost()
+        self.valid_loss = self.lambda_l1*self.valid_loss_l1 + self.lambda_l2*self.valid_loss_l2
+        
         self.avg_psnr = self._get_measure('avg_psnr')
         self.valid_avg_psnr =  self._get_measure('avg_psnr')
 
@@ -103,9 +111,10 @@ class SOFI(object):
         Constructs the cost function.
 
         """
-        loss = tf.losses.mean_squared_error(self.recons, self.y)
+        loss_l2 = tf.losses.mean_squared_error(self.recons, self.y)
+        loss_l1 = tf.reduce_mean(tf.abs(self.recons))
 
-        return loss     
+        return loss_l1, loss_l2     
     
     # save graph
     def savegraph(self, model_path, save_path):
@@ -153,6 +162,41 @@ class SOFI(object):
             tflite_model = converter.convert()
             open(outputmodelpath, "wb").write(tflite_model)
 
+    def saveTFLITE_stdv(self, model_path, outputmodelpath='converted_model.tflite'):
+        init = tf.global_variables_initializer()
+        with tf.Session() as sess:
+            # Initialize variables
+            sess.run(init)
+        
+            # Restore model weights from previously saved model
+            self.restore(sess, model_path)
+            
+            input_reshape = tf.reshape(self.input_, [self.batchsize, self.nx//2, self.ny//2, self.ntimesteps])            
+            self.output_std_ = tf.math.reduce_std(input_reshape,axis=-1)
+            self.output_std_ = tf.reshape(self.output_std_, [self.nx*self.ny//4])
+
+            converter = tf.lite.TFLiteConverter.from_session(sess, [self.input_], [self.output_std_])
+            tflite_model = converter.convert()
+            open(outputmodelpath, "wb").write(tflite_model)
+ 
+    def saveTFLITE_mean(self, model_path, outputmodelpath='converted_model.tflite'):
+        init = tf.global_variables_initializer()
+        with tf.Session() as sess:
+            # Initialize variables
+            sess.run(init)
+        
+            # Restore model weights from previously saved model
+            self.restore(sess, model_path)
+            input_reshape = tf.reshape(self.input_, [self.batchsize, self.nx//2, self.ny//2, self.ntimesteps])            
+            self.output_mean_ = tf.math.reduce_mean(input_reshape,axis=-1)
+            self.output_mean_ = tf.reshape(self.output_mean_, [self.nx*self.ny//4])
+
+    
+            converter = tf.lite.TFLiteConverter.from_session(sess, [self.input_], [self.output_mean_])
+            tflite_model = converter.convert()
+            open(outputmodelpath, "wb").write(tflite_model)
+ 
+            
     def simple_save(self, model_path, outputmodelpath='converted_model.pb'):
             """
             Saves the current session to a checkpoint
