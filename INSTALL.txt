@@ -1,0 +1,11 @@
+# install the environment
+conda create -n tfgpu2 python=3.6
+activate tfgpu2 
+
+# install spyder and other dependencies
+conda install -c anaconda spyder
+conda install -c anaconda tifffile
+pip install matplotlib
+pip install git+https://NanoImagingUser:NanoImagingUser@gitlab.com/bionanoimaging/nanoimagingpack
+pip install opencv-python
+
