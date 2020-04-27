@@ -41,8 +41,7 @@ class SOFI(object):
     :param kwargs: args passed to create_net function. 
     """
    
-    def __init__(self, batchsize=4, Nx=None, Ny=None, features_root = 9, Ntime=9, lambda_l1=0., lambda_l2=1.):
-        tf.reset_default_graph()
+    def __init__(self, batchsize=4, Nx=None, Ny=None, features_root = 1, Ntime=9, lambda_l1=0., lambda_l2=1.):
 
        # reused variables
         self.summaries = True
@@ -51,30 +50,34 @@ class SOFI(object):
         self.lambda_l1 = lambda_l1
         self.lambda_l2 = lambda_l2
         self.batchsize = batchsize # tf.shape(self.x)[0]    # 1
-        
-        if(Nx is not None or Ny is not None):
-            # in case we do know about the input dimensions
-            self.nx = Nx
-            self.ny = Ny
-        
-        # placeholders for input x and y
-        self.x = tf.placeholder("float", shape=[self.batchsize, None, None, self.Ntime]) # We have to encode the timestep in the batchsize, otherwise not working; assumming: nbatch*Ntime, nx, ny, nc 
-        self.y = tf.placeholder("float", shape=[self.batchsize, None, None, 1])
         self.img_channels = 1
         self.phase = tf.placeholder(tf.bool, name='phase')
         self.keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
+        
+        if(Nx is not None or Ny is not None):
+            # in case we do know about the input dimensions
+            self.nx = Nx//2
+            self.ny = Ny//2
+            self.x = tf.placeholder("float", shape=[self.batchsize, self.nx, self.ny, self.Ntime]) # We have to encode the timestep in the batchsize, otherwise not working; assumming: nbatch*Ntime, nx, ny, nc 
+            self.y = tf.placeholder("float", shape=[self.batchsize, self.nx*2, self.ny*2, 1])
 
         # variables need to be calculated
-        if(Nx is None or Ny is None):
+        else:
             # in case we don'T know about the input dimensions
+            # placeholders for input x and y
+            self.x = tf.placeholder("float", shape=[self.batchsize, None, None, self.Ntime]) # We have to encode the timestep in the batchsize, otherwise not working; assumming: nbatch*Ntime, nx, ny, nc 
+            self.y = tf.placeholder("float", shape=[self.batchsize, None, None, 1])
             self.nx = tf.shape(self.x)[1]
             self.ny = tf.shape(self.x)[2]
-            self.x = tf.placeholder("float", shape=[self.batchsize, self.nx, self.ny, self.Ntime]) # We have to encode the timestep in the batchsize, otherwise not working; assumming: nbatch*Ntime, nx, ny, nc 
-            self.y = tf.placeholder("float", shape=[self.batchsize, self.nx, self.ny, 1])
+        
 
         self.input_ = tf.reshape(self.x, [self.batchsize*self.nx*self.ny*self.Ntime]) 
         self.input_reshape = tf.reshape(self.input_, [self.batchsize, self.nx, self.ny, self.Ntime])
-        self.recons = sofi_decoder(self.input_reshape, self.y, self.keep_prob, self.phase, self.img_channels, self.features_root, Ntime=self.Ntime)
+
+        self.recons = sofi_decoder(x=self.input_reshape, y=self.y, 
+                                   keep_prob=self.keep_prob, phase=self.phase,
+                                   hidden_num=self.features_root, Ntime=self.Ntime)
+        
         self.output_ = tf.reshape(self.recons, [self.batchsize*self.nx*self.ny*4])
  
         # training loss

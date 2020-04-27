@@ -12,30 +12,31 @@ import os
 from sys import platform
 # This is taken from the ScaDec from Ulugbek Kamilov 2018 et al. which is a copy of the tf_unet
 
+import tensorflow as tf
 
+tf.reset_default_graph()
 ####################################################
 ####              HYPER-PARAMETERS               ###
 ####################################################
 
 # Because we have real & imaginary part of our input, data_channels is set to 2
-data_channels = 1
-truth_channels = 1
-features_root = 1
+features_root = 4
 # args for training
 batch_size = 4     # batch size for training
-Ntime = 30    # number of time-steps for one 3D volume
+Ntime = 32    # number of time-steps for one 3D volume
 optimizer = "adam"  # optimizer we want to use, 'adam' or 'momentum'
-Nx, Ny = 128, 128 # final size of the image
+Nx, Ny = 256, 256 # final size of the image
 
 learning_rate = 0.01
 display_step = 50
 epochs = 300
 training_iters = 200
-save_epoch = 1
+save_epoch = 5
+dropout = 0.8
 
 
 # here indicating the GPU you want to use. if you don't have GPU, just leave it.
-gpu_ind = '0'
+gpu_ind = '0,1'
 os.environ['CUDA_VISIBLE_DEVICES'] = gpu_ind; # 0,1,2,3
 
 
@@ -45,7 +46,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = gpu_ind; # 0,1,2,3
 
 # Specify the location with for the training data #
 if platform == "linux" or platform == "linux2":
-	train_data_path = './data/data_downconverted'; upscaling=4 # linux
+	train_data_path = './data/data_downconverted'; upscaling=2 # linux
 elif platform == "darwin":
 	train_data_path = './test'; upscaling=4 # OS X
 elif platform == 'win32':
@@ -53,7 +54,7 @@ elif platform == 'win32':
    train_data_path = '.\\data\\data_downconverted_2'; upscaling=2
    train_data_path = '.\\data\\data_raw'; upscaling=1
    train_data_path = '.\\data\\data'; upscaling=2
-nn_name = 'upsamping_'+str(upscaling)+'_lstm4_'+str(Nx)+'x'+str(Ny)+'_time_'+str(Ntime)+'_batchnorm_newdataprovider_subpixel_nopeep_varyingdim4'
+nn_name = 'upsamping_'+str(upscaling)+'_lstm4_'+str(Nx)+'x'+str(Ny)+'_time_'+str(Ntime)+'_batchnorm_newdataprovider_subpixel_peep_varyingdim_noL1'
                            
 # Specify the location with for the validation data #
 data_provider = image_util_preprocess.ImageDataProvider(train_data_path, nchannels = 1, 
@@ -81,7 +82,7 @@ valid_provider = image_util_preprocess.ImageDataProvider(train_data_path, nchann
 #-- Network Setup --#
 # set up args for the unet
 
-net = sofi.SOFI(batchsize=batch_size, features_root=features_root, Ntime=Ntime)
+net = sofi.SOFI(Nx=Nx, Ny=Ny, batchsize=batch_size, features_root=features_root, Ntime=Ntime)
        
 
 ####################################################
@@ -99,4 +100,4 @@ prediction_path = output_root + nn_name+'_gpu' + gpu_ind + '/validation'
 trainer = train.trainer_sofi(net, batch_size=batch_size, optimizer = "adam")
 
 # train 
-path = trainer.train(data_provider, output_path, valid_provider, batch_size, training_iters=training_iters, epochs=epochs, display_step=display_step, save_epoch=save_epoch, prediction_path=prediction_path)
+path = trainer.train(data_provider, output_path, valid_provider, batch_size, dropout=dropout, training_iters=training_iters, epochs=epochs, display_step=display_step, save_epoch=save_epoch, prediction_path=prediction_path)

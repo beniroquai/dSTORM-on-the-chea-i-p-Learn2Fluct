@@ -250,17 +250,21 @@ class ConvLSTMCell(object):
      and `BasicLSTMCell` in TensorFlow. 
     """
     def __init__(self, num_features, filter_size=[3,3], 
-                 forget_bias=1.0, activation=tanh, name="ConvLSTMCell"):
+                 forget_bias=1.0, activation=tanh, name="ConvLSTMCell",  
+                 is_normalize=False, is_peephole=False):
       self.num_features = num_features
       self.filter_size = filter_size
       self.forget_bias = forget_bias
       self.activation = activation
       self.name = name
+      self._normalize = is_normalize
+      self._peephole = is_peephole
+      self._forget_bias= 1.0
 
     def zero_state(self, batch_size, height, width):
         return tf.zeros([batch_size, height, width, self.num_features*2])
 
-    def __call__(self, inputs, state, scope=None, is_normalize=False, is_peephole=False):
+    def __call__(self, inputs, state, scope=None,):
         """Convolutional Long short-term memory cell (ConvLSTM)."""
         with vs.variable_scope(scope or self.name): # "ConvLSTMCell"
             c, h = tf.split(state, 2, 3)
@@ -277,15 +281,13 @@ class ConvLSTMCell(object):
             # new_state = tf.concat([new_c, new_h], 3)
 
               # return new_h, new_state
-      
-        self._normalize = is_normalize
-        self._peephole = is_peephole
-        self._forget_bias= 1.0
 
-        inputs = tf.concat([inputs, h], axis=-1)#self._feature_axis)
+        inputs = tf.concat([inputs, h], axis=-1)
         n = inputs.shape[-1].value
         m = 4 * self.num_features if self.num_features > 1 else 4
-        W = tf.get_variable('kernel', self.filter_size + [n, m])
+        
+        init = tf.keras.initializers.glorot_uniform()
+        W = tf.get_variable('kernel', self.filter_size + [n, m], initializer=init)
         y = tf.nn.convolution(inputs, W, 'SAME', data_format=None)
         if not self._normalize:
             y += tf.get_variable('bias', [m], initializer=tf.zeros_initializer())
@@ -296,9 +298,9 @@ class ConvLSTMCell(object):
             f += tf.get_variable('W_cf', c.shape[1:]) * c
               
         if self._normalize:
-            j = tf.contrib.layers.layer_norm(j,reuse=True)
-            i = tf.contrib.layers.layer_norm(i,reuse=True)
-            f = tf.contrib.layers.layer_norm(f,reuse=True)
+            f = tf.keras.layers.LayerNormalization()(f)
+            i = tf.keras.layers.LayerNormalization()(i)
+            j = tf.keras.layers.LayerNormalization()(j)            
         
         f = tf.sigmoid(f + self._forget_bias)
         i = tf.sigmoid(i)
@@ -308,10 +310,11 @@ class ConvLSTMCell(object):
             o += tf.get_variable('W_co', c.shape[1:]) * c
         
         if self._normalize:
-            o = tf.contrib.layers.layer_norm(o)
-            c = tf.contrib.layers.layer_norm(c)
+            o = tf.keras.layers.LayerNormalization()(o)  
+            c = tf.keras.layers.LayerNormalization()(c)            
               
-        o = tf.sigmoid(o)
+        o = tf.keras.activations.hard_sigmoid(o)
+        #o = tf.sigmoid(o)
         h = o * self.activation(c)
         
         state = tf.concat([c, h], 3) #tf.nn.rnn_cell.LSTMStateTuple(c, h)

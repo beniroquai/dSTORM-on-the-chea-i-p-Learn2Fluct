@@ -169,21 +169,21 @@ class ImageDataProvider(BaseDataProvider):
     
     def _generate_fluctuation_mat(self):
         print("Precompute the illumination pattern")
-        myallmodes = np.zeros((self.mysize[0], self.mysize[1], self.Ntime*5))
+        n_border = 20 # avoid zero-space in the middle of the pattern
+        myallmodes = np.zeros((self.mysize[0]+n_border, self.mysize[1]+n_border, self.Ntime*5))
         # generate illuminating modes
-        
         for i_frame in range(self.Ntime*5):
             for i_modes in range(self.n_modes):
                 while(True):
-                    start_x = np.random.randint(0,self.mysize[0])
-                    start_y = np.random.randint(0,self.mysize[1])
+                    start_x = np.random.randint(0,self.mysize[0]+n_border)
+                    start_y = np.random.randint(0,self.mysize[1]+n_border)
                     # make sure the angle is not too steep!
-                    if(np.abs(np.arctan((start_x-start_y)/self.mysize[0])/np.pi*180)<self.mode_max_angle):
+                    if(np.abs(np.arctan((start_x-start_y)/(self.mysize[0]+n_border))/np.pi*180)<self.mode_max_angle):
                         break
                 # https://stackoverflow.com/questions/31638651/how-can-i-draw-lines-into-numpy-arrays            
-                rows, cols, weights = line_aa(start_x, 0, start_y, self.mysize[0]-1)    # antialias line
+                rows, cols, weights = line_aa(start_x, 0, start_y, self.mysize[0]+n_border-1)    # antialias line
                 myallmodes[rows, cols, i_frame] = np.random.randint(20,90)/100
-        return myallmodes #plt.imshow(np.mean(myallmodes,-1)), plt.show()
+        return nip.extract(myallmodes, (self.mysize[0], self.mysize[1], self.Ntime*5)) #plt.imshow(np.mean(myallmodes,-1)), plt.show()
         # print('Frame: '+str(i_frame))
 
     def _simulate_microscope(self, data):
@@ -204,10 +204,8 @@ class ImageDataProvider(BaseDataProvider):
     
         # normalize the sample
         # mysample = nip.resample(mysample, factors =(.5,.5))
-        mysample = nip.extract(mysample, self.mysize)
         mysample -= np.min(mysample)
         mysample = mysample/np.max(mysample)*self.n_photons
-
 
         # allocate some memory
         myresultframe_noisy = np.zeros((self.mysize[0]//self.downscaling, self.mysize[1]//self.downscaling, self.Ntime))
@@ -261,15 +259,21 @@ class ImageDataProvider(BaseDataProvider):
                 SizePar=np.random.randint(1,3)
                 Ngraphs = np.random.randint(3,14)
                 Maxtimesteps=50
-                mytif = self._simulateactin(Ngraphs=Ngraphs, SizePar=SizePar, Maxtimesteps=Maxtimesteps)
+                mytif = self._simulateactin(Ngraphs=Ngraphs, SizePar=SizePar, Maxtimesteps=Maxtimesteps)*2**8
             else:
                 NEcolis = np.random.randint(60,140)
-                mytif = self._simulateecoli(NEcolis=NEcolis)
+                mytif = self._simulateecoli(NEcolis=NEcolis)*2**8
         else:
             mytif = tif.imread(path)
-        mytif -= np.min(mytif)
-        mytif /= np.max(mytif)
-
+            myX_tmp = mytif.shape[0]
+            myY_tmp = mytif.shape[1]
+            diffX_tmp = np.floor(np.abs(self.mysize[0]-myX_tmp)/2)
+            diffY_tmp = np.floor(np.abs(self.mysize[1]-myY_tmp)/2)
+            shiftX_tmp = np.random.randint(-diffX_tmp, diffX_tmp)
+            shiftY_tmp = np.random.randint(-diffY_tmp, diffX_tmp)
+            
+            mytif = nip.extract(mytif, self.mysize, (myX_tmp//2+shiftX_tmp,myY_tmp//2+shiftY_tmp))
+                
         if(np.random.randint(0,2)):
             # random flips 
             #print('Im applying flipping')
@@ -299,13 +303,18 @@ class ImageDataProvider(BaseDataProvider):
             self.ids=np.random.permutation(len(self.data_files))
 
     def _next_file(self):
-        self._cylce_file()
-        self.image_name = self.data_files[self.ids[self.file_idx]]
-        # print('Now providing next Mat-file: '+self.image_name)
-                
-        # this is for MAT-files with --v7.3 option
-        label = self._load_file(os.path.join(self.image_name))
-     
+        while(True):
+            # make sure, that there is some content in the image
+            self._cylce_file()
+            self.image_name = self.data_files[self.ids[self.file_idx]]
+            label = np.array(self._load_file(os.path.join(self.image_name)))
+            # Select only results which are not empty (e.g. only background)
+            if(np.abs(np.max(label)-np.min(label))> 40):
+                break
+
+
+
+
         # simulate microscpe 
         mysample, myresultframe_noisy, myresultframe_clean = self._simulate_microscope(label)
         

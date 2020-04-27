@@ -15,7 +15,7 @@ import os
 
 
 Nx, Ny = 128, 128 # final size of the image
-ntimesteps = 25
+Ntime = 25
 
 
 ####################################################
@@ -37,7 +37,7 @@ elif sys.platform == 'win32':
 upscaling=2
 # Specify the location with for the validation data #
 data_provider = image_util_preprocess.ImageDataProvider(train_data_path, nchannels = 1, 
-                mysize=(Nx, Ny), ntimesteps=ntimesteps, downscaling=upscaling, test=False, \
+                mysize=(Nx, Ny), Ntime=Ntime, downscaling=upscaling, test=False, \
                 n_modes = 50, mode_max_angle = 15, kernel_size = 1, n_photons = 100, n_readnoise = 10, 
                 downsampling = 1, kernelsize=1, quality_jpeg=80)
 
