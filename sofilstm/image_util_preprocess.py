@@ -220,7 +220,8 @@ class ImageDataProvider(BaseDataProvider):
             # illuminate the sample with the structured illumination 
             myresultframe = myillutmp*mysample
             # subsample data
-            myresultframe = nip.resample(myresultframe, [1/self.downscaling, 1/self.downscaling])/self.downscaling
+            myresultframe = cv2.resize(myresultframe, dsize=None, fx=1/self.downscaling, fy=1/self.downscaling)
+            #myresultframe = nip.resample(myresultframe, [1/self.downscaling, 1/self.downscaling])/self.downscaling
             myresultframe -= np.min(myresultframe)# handle zeros
             
             myresultframe_clean[:,:,iframe] = (myresultframe)
@@ -265,6 +266,7 @@ class ImageDataProvider(BaseDataProvider):
                 mytif = self._simulateecoli(NEcolis=NEcolis)*2**8
         else:
             mytif = tif.imread(path)
+            mytif = cv2.resize(mytif, dsize=None, fx=.75, fy=.75)
             myX_tmp = mytif.shape[0]
             myY_tmp = mytif.shape[1]
             diffX_tmp = np.floor(np.abs(self.mysize[0]-myX_tmp)/2)
@@ -368,7 +370,7 @@ class ImageDataProvider(BaseDataProvider):
             for ii in range(1,mytimesteps):
                 rows, cols, weights = line_aa(x2[ii], y2[ii], x2[ii-1], y2[ii-1])    # antialias line
                 myresult[rows, cols] = np.random.randint(30,90)/100
-        myresult = nip.resample(myresult, (.5,.5))      
+        myresult = cv2.resize(myresult, dsize=None, fx=.5, fy=.5)
         myresult /= np.max(myresult)  
         
         return myresult
@@ -394,6 +396,6 @@ class ImageDataProvider(BaseDataProvider):
                 myresult[rows, cols] = np.random.randint(30,90)/100
             except:
                 None
-        myresult = nip.resample(myresult, (.5,.5))      
+        myresult = cv2.resize(myresult, dsize=None, fx=.5, fy=.5)
         myresult /= np.max(myresult)  
         return myresult

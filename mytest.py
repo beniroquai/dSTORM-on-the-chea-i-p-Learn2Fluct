@@ -15,7 +15,8 @@ mpl.rc('image', cmap='gray')
 ####################################################
 ####             PREPARE WORKSPACE               ###
 ####################################################
-
+import tensorflow as tf
+tf.reset_default_graph()
 
 
 # here indicating the GPU you want to use. if you don't have GPU, just leave it.
@@ -25,12 +26,12 @@ os.environ['CUDA_VISIBLE_DEVICES'] = gpu_ind; # 0,1,2,3
 # Because we have real & imaginary part of our input, data_channels is set to 2
 data_channels = 1
 truth_channels = 1
-features_root = 1
+features_root = 4
 # args for training
 batch_size = 1     # batch size for training
 Ntime = 30    # number of time-steps for one 3D volume
 optimizer = "adam"  # optimizer we want to use, 'adam' or 'momentum'
-Nx, Ny = 128, 128 # final size of the image
+Nx, Ny = 256, 256# final size of the image
 N_time = 30
 
 learning_rate = 0.01
@@ -43,6 +44,7 @@ save_epoch = 1
 
 # here specify the path of the model you want to load
 model_path = './final/'#'./networks/upsamping_2_lstm4_128x128_time_30_batchnorm_newdataprovider_subpixel_gpu0/models/final/'
+model_path = './networks/upsamping_2_lstm4_256x256_time_32_batchnorm_newdataprovider_subpixel_peep_varyingdim_noL1_4_gpu0,1/models/final/'
 ####################################################
 ####                 FUNCTIONS                   ###
 ####################################################
@@ -104,8 +106,6 @@ if(0):
                                            net.y: gt,
                                             net.keep_prob: 1., 
                                             net.phase: False})  # set phase to False for every prediction
-   
-
 
 ####################################################
 ####              	  PREDICT                    ###
@@ -118,8 +118,8 @@ if(0):
 # tflite_model = converter.convert()
 
 #net.saveTFLITE(model_path+'model.cpkt')
-
-predict = net.predict(model_path+'model.cpkt', data, )
+net = sofi.SOFI(Nx=256, Ny=256,  batchsize=batch_size, features_root=features_root, Ntime=Ntime)
+predict = net.predict(model_path+'model.cpkt', data, keep_prob=1., phase=True)
 #predict(self, model_path, x_test, keep_prob, phase)
 
 #% visualize 
