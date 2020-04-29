@@ -128,7 +128,7 @@ class ImageDataProvider(BaseDataProvider):
 
     def __init__(self, search_path, nchannels=1, mysize=None, Ntime=9, downscaling=2, test=False, \
                  n_modes = 50, mode_max_angle = 15, kernelsize = 1, n_photons = 100, n_readnoise = 10, \
-                 quality_jpeg=80, max_background= 3):
+                 quality_jpeg=80):
         self.mysize = mysize
         self.downscaling = downscaling
         
@@ -142,7 +142,7 @@ class ImageDataProvider(BaseDataProvider):
         self.n_photons = n_photons
         self.n_readnoise = n_readnoise
         self.quality_jpeg = 80
-        self.max_background = max_background
+        
         
         self.test=test
         self.channels=nchannels # eventually it can be used for complex data
@@ -224,9 +224,7 @@ class ImageDataProvider(BaseDataProvider):
             #myresultframe = nip.resample(myresultframe, [1/self.downscaling, 1/self.downscaling])/self.downscaling
             myresultframe -= np.min(myresultframe)# handle zeros
             
-            myresultframe_clean[:,:,iframe] = (myresultframe) + np.random.randint(0,self.max_background) # add background
-            
-            #convolve with PSF
+            myresultframe_clean[:,:,iframe] = (myresultframe)
             myresultframe = gaussian_filter(myresultframe, sigma=self.kernelsize)
             
             # add noise

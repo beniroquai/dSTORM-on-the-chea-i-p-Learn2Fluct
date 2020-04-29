@@ -1,0 +1,483 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 17 files
+Detected 44 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: sofilstm/layers_old.py
+--------------------------------------------------------------------------------
+sofilstm/layers_old.py:51:14: ERROR: Using member tf.contrib.layers.conv2d in deprecated module tf.contrib. tf.contrib.layers.conv2d cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/layers_old.py:77:14: ERROR: Using member tf.contrib.layers.conv2d_transpose in deprecated module tf.contrib. tf.contrib.layers.conv2d_transpose cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/layers_old.py:87:14: ERROR: Using member tf.contrib.layers.conv2d in deprecated module tf.contrib. tf.contrib.layers.conv2d cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/layers_old.py:95:14: ERROR: Using member tf.contrib.layers.conv2d in deprecated module tf.contrib. tf.contrib.layers.conv2d cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/layers_old.py:102:14: ERROR: Using member tf.contrib.layers.conv2d in deprecated module tf.contrib. tf.contrib.layers.conv2d cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/layers_old.py:127:20: WARNING: Using member tf.contrib.rnn.ConvLSTMCell in deprecated module tf.contrib.rnn. (Manual edit required) tf.contrib.rnn.* has been deprecated, and widely used cells/functions will be moved to tensorflow/addons repository. Please check it there and file Github issues if necessary.
+sofilstm/layers_old.py:127:20: ERROR: Using member tf.contrib.rnn.ConvLSTMCell in deprecated module tf.contrib. tf.contrib.rnn.ConvLSTMCell cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+--------------------------------------------------------------------------------
+File: sofilstm/convlstmcell.py
+--------------------------------------------------------------------------------
+sofilstm/convlstmcell.py:63:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/convlstmcell.py:64:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/convlstmcell.py:67:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstmcell.py:67:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/convlstmcell.py:68:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstmcell.py:68:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/convlstmcell.py:69:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstmcell.py:69:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/convlstmcell.py:76:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/convlstmcell.py:79:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstmcell.py:79:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/convlstmcell.py:80:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstmcell.py:80:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+--------------------------------------------------------------------------------
+File: sofilstm/sofi.py
+--------------------------------------------------------------------------------
+sofilstm/sofi.py:161:20: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+sofilstm/sofi.py:185:20: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+File: sofilstm/layers.py
+--------------------------------------------------------------------------------
+sofilstm/layers.py:54:18: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/layers.py:55:15: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+--------------------------------------------------------------------------------
+File: sofilstm/convlstm.py
+--------------------------------------------------------------------------------
+sofilstm/convlstm.py:58:15: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/convlstm.py:112:8: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/convlstm.py:115:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/convlstm.py:119:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/convlstm.py:120:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/convlstm.py:123:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstm.py:123:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/convlstm.py:124:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstm.py:124:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/convlstm.py:125:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstm.py:125:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/convlstm.py:132:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/convlstm.py:135:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstm.py:135:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+sofilstm/convlstm.py:136:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+sofilstm/convlstm.py:136:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+--------------------------------------------------------------------------------
+File: sofilstm/BASICLSTM/convlstmbasic.py
+--------------------------------------------------------------------------------
+sofilstm/BASICLSTM/convlstmbasic.py:136:13: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+sofilstm/BASICLSTM/convlstmbasic.py:144:16: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+--------------------------------------------------------------------------------
+File: sofilstm/BASICLSTM/layer_def.py
+--------------------------------------------------------------------------------
+sofilstm/BASICLSTM/layer_def.py:42:10: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+--------------------------------------------------------------------------------
+File: sofilstm/BASICLSTM/train_convlstmbasic.py
+--------------------------------------------------------------------------------
+sofilstm/BASICLSTM/train_convlstmbasic.py:165:4: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+================================================================================
+Detailed log follows:
+
+================================================================================
+================================================================================
+Input tree: 'sofilstm/'
+================================================================================
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/nets_sofi.py'
+ outputting to 'sofilstm_v2/nets_sofi.py'
+--------------------------------------------------------------------------------
+
+36:38: INFO: Added keywords to args of function 'tf.transpose'
+38:24: INFO: Renamed 'tf.nn.dynamic_rnn' to 'tf.compat.v1.nn.dynamic_rnn'
+41:19: INFO: Added keywords to args of function 'tf.transpose'
+46:17: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+50:45: INFO: Added keywords to args of function 'tf.math.reduce_mean'
+62:21: INFO: Added keywords to args of function 'tf.nn.conv2d'
+62:21: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+72:23: INFO: Added keywords to args of function 'tf.transpose'
+76:24: INFO: Renamed 'tf.nn.dynamic_rnn' to 'tf.compat.v1.nn.dynamic_rnn'
+79:19: INFO: Added keywords to args of function 'tf.transpose'
+84:13: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+88:38: INFO: Added keywords to args of function 'tf.transpose'
+95:37: INFO: Added keywords to args of function 'tf.math.reduce_mean'
+103:25: INFO: Added keywords to args of function 'tf.nn.conv2d'
+103:25: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+108:23: INFO: Added keywords to args of function 'tf.transpose'
+114:25: INFO: Renamed 'tf.lite.experimental.nn.dynamic_rnn' to 'tf.compat.v1.lite.experimental.nn.dynamic_rnn'
+120:37: INFO: Added keywords to args of function 'tf.math.reduce_mean'
+128:25: INFO: Added keywords to args of function 'tf.nn.conv2d'
+128:25: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+137:4: INFO: tf.summary.image requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+137:4: INFO: Renamed 'tf.summary.image' to 'tf.compat.v1.summary.image'
+138:4: INFO: tf.summary.image requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+138:4: INFO: Renamed 'tf.summary.image' to 'tf.compat.v1.summary.image'
+139:4: INFO: tf.summary.image requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+139:4: INFO: Renamed 'tf.summary.image' to 'tf.compat.v1.summary.image'
+140:4: INFO: tf.summary.image requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+140:4: INFO: Renamed 'tf.summary.image' to 'tf.compat.v1.summary.image'
+141:4: INFO: tf.summary.image requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+141:4: INFO: Renamed 'tf.summary.image' to 'tf.compat.v1.summary.image'
+141:89: INFO: Added keywords to args of function 'tf.math.reduce_mean'
+142:4: INFO: tf.summary.image requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+142:4: INFO: Renamed 'tf.summary.image' to 'tf.compat.v1.summary.image'
+152:9: INFO: Added keywords to args of function 'tf.reduce_min'
+153:9: INFO: Added keywords to args of function 'tf.reduce_max'
+156:12: INFO: Added keywords to args of function 'tf.shape'
+157:12: INFO: Added keywords to args of function 'tf.shape'
+159:8: INFO: Added keywords to args of function 'tf.transpose'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/layers_old.py'
+ outputting to 'sofilstm_v2/layers_old.py'
+--------------------------------------------------------------------------------
+
+26:14: INFO: Renamed 'tf.log' to 'tf.math.log'
+27:16: INFO: Renamed 'tf.log' to 'tf.math.log'
+31:14: INFO: Renamed 'tf.truncated_normal' to 'tf.random.truncated_normal'
+35:11: INFO: Added keywords to args of function 'tf.reduce_max'
+35:11: INFO: Renamed keyword argument for tf.reduce_max from keep_dims to keepdims
+36:11: INFO: Added keywords to args of function 'tf.reduce_min'
+36:11: INFO: Renamed keyword argument for tf.reduce_min from keep_dims to keepdims
+46:9: INFO: Added keywords to args of function 'tf.reduce_sum'
+46:23: INFO: Renamed 'tf.squared_difference' to 'tf.math.squared_difference'
+47:15: INFO: Changed tf.to_float call to tf.cast(..., dtype=tf.float32).
+51:14: ERROR: Using member tf.contrib.layers.conv2d in deprecated module tf.contrib. tf.contrib.layers.conv2d cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+53:54: INFO: Renamed 'tf.layers.batch_normalization' to 'tf.compat.v1.layers.batch_normalization'
+57:11: INFO: Changing keep_prob arg of tf.nn.dropout to rate, and recomputing value.
+
+63:18: INFO: tf.random_normal_initializer requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+63:18: INFO: Renamed 'tf.random_normal_initializer' to 'tf.compat.v1.random_normal_initializer'
+64:20: INFO: Renamed 'tf.image.resize_images' to 'tf.image.resize'
+65:14: INFO: Renamed 'tf.layers.separable_conv2d' to 'tf.compat.v1.layers.separable_conv2d'
+72:11: INFO: Changing keep_prob arg of tf.nn.dropout to rate, and recomputing value.
+
+77:14: ERROR: Using member tf.contrib.layers.conv2d_transpose in deprecated module tf.contrib. tf.contrib.layers.conv2d_transpose cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+80:62: INFO: Renamed 'tf.layers.batch_normalization' to 'tf.compat.v1.layers.batch_normalization'
+84:11: INFO: Changing keep_prob arg of tf.nn.dropout to rate, and recomputing value.
+
+87:14: ERROR: Using member tf.contrib.layers.conv2d in deprecated module tf.contrib. tf.contrib.layers.conv2d cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+89:54: INFO: Renamed 'tf.layers.batch_normalization' to 'tf.compat.v1.layers.batch_normalization'
+95:14: ERROR: Using member tf.contrib.layers.conv2d in deprecated module tf.contrib. tf.contrib.layers.conv2d cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+102:14: ERROR: Using member tf.contrib.layers.conv2d in deprecated module tf.contrib. tf.contrib.layers.conv2d cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+109:11: INFO: Added keywords to args of function 'tf.nn.max_pool'
+109:11: INFO: Renamed keyword argument for tf.nn.max_pool from value to input
+109:11: INFO: Renamed 'tf.nn.max_pool' to 'tf.nn.max_pool2d'
+127:20: WARNING: Using member tf.contrib.rnn.ConvLSTMCell in deprecated module tf.contrib.rnn. (Manual edit required) tf.contrib.rnn.* has been deprecated, and widely used cells/functions will be moved to tensorflow/addons repository. Please check it there and file Github issues if necessary.
+127:20: ERROR: Using member tf.contrib.rnn.ConvLSTMCell in deprecated module tf.contrib. tf.contrib.rnn.ConvLSTMCell cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+138:13: INFO: Added keywords to args of function 'tf.shape'
+141:14: INFO: Renamed 'tf.nn.dynamic_rnn' to 'tf.compat.v1.nn.dynamic_rnn'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/convlstmcell.py'
+ outputting to 'sofilstm_v2/convlstmcell.py'
+--------------------------------------------------------------------------------
+
+56:8: INFO: Added keywords to args of function 'tf.nn.convolution'
+56:8: INFO: Renamed keyword argument for tf.nn.convolution from filter to filters
+63:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+63:11: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+64:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+64:11: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+67:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+67:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+68:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+68:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+69:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+69:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+76:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+76:11: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+79:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+79:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+80:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+80:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/util.py'
+ outputting to 'sofilstm_v2/util.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/__init__.py'
+ outputting to 'sofilstm_v2/__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/sofi.py'
+ outputting to 'sofilstm_v2/sofi.py'
+--------------------------------------------------------------------------------
+
+45:8: INFO: Renamed 'tf.reset_default_graph' to 'tf.compat.v1.reset_default_graph'
+54:17: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+55:17: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+56:21: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+57:25: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+60:18: INFO: Added keywords to args of function 'tf.shape'
+61:18: INFO: Added keywords to args of function 'tf.shape'
+62:28: INFO: Added keywords to args of function 'tf.shape'
+91:23: INFO: Added keywords to args of function 'tf.reduce_mean'
+104:15: INFO: tf.losses.mean_squared_error requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+104:15: INFO: Renamed 'tf.losses.mean_squared_error' to 'tf.compat.v1.losses.mean_squared_error'
+110:8: INFO: Renamed 'tf.train.write_graph' to 'tf.io.write_graph'
+124:15: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+125:13: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+139:15: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+140:13: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+160:16: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+161:20: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+172:16: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+184:16: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+185:20: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/test_imageutil.py'
+ outputting to 'sofilstm_v2/test_imageutil.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/test_convlstm.py'
+ outputting to 'sofilstm_v2/test_convlstm.py'
+--------------------------------------------------------------------------------
+
+16:0: INFO: Renamed 'tf.reset_default_graph' to 'tf.compat.v1.reset_default_graph'
+32:17: INFO: Renamed 'tf.lite.experimental.nn.dynamic_rnn' to 'tf.compat.v1.lite.experimental.nn.dynamic_rnn'
+38:8: INFO: Added keywords to args of function 'tf.reduce_mean'
+38:23: INFO: tf.losses.mean_squared_error requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+38:23: INFO: Renamed 'tf.losses.mean_squared_error' to 'tf.compat.v1.losses.mean_squared_error'
+39:7: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+42:7: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+43:7: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+59:4: INFO: Renamed 'tf.train.write_graph' to 'tf.io.write_graph'
+64:4: INFO: Renamed 'tf.saved_model.simple_save' to 'tf.compat.v1.saved_model.simple_save'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/image_util.py'
+ outputting to 'sofilstm_v2/image_util.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/train.py'
+ outputting to 'sofilstm_v2/train.py'
+--------------------------------------------------------------------------------
+
+ERROR: Failed to parse.
+Traceback (most recent call last):
+  File "/opt/anaconda3/envs/tfcpu/lib/python3.6/site-packages/tensorflow_core/tools/compatibility/ast_edits.py", line 916, in update_string_pasta
+    t = pasta.parse(text)
+  File "/opt/anaconda3/envs/tfcpu/lib/python3.6/site-packages/pasta/__init__.py", line 23, in parse
+    t = ast_utils.parse(src)
+  File "/opt/anaconda3/envs/tfcpu/lib/python3.6/site-packages/pasta/base/ast_utils.py", line 56, in parse
+    tree = ast.parse(sanitize_source(src))
+  File "/opt/anaconda3/envs/tfcpu/lib/python3.6/ast.py", line 35, in parse
+    return compile(source, filename, mode, PyCF_ONLY_AST)
+  File "<unknown>", line 249
+    util.save_mat(prediction, "%s/%s.mat"%(self.prediction_path, name),'result')
+    ^
+IndentationError: unexpected indent
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/layers.py'
+ outputting to 'sofilstm_v2/layers.py'
+--------------------------------------------------------------------------------
+
+26:14: INFO: Renamed 'tf.log' to 'tf.math.log'
+27:16: INFO: Renamed 'tf.log' to 'tf.math.log'
+31:14: INFO: Renamed 'tf.truncated_normal' to 'tf.random.truncated_normal'
+35:11: INFO: Added keywords to args of function 'tf.reduce_max'
+35:11: INFO: Renamed keyword argument for tf.reduce_max from keep_dims to keepdims
+36:11: INFO: Added keywords to args of function 'tf.reduce_min'
+36:11: INFO: Renamed keyword argument for tf.reduce_min from keep_dims to keepdims
+46:9: INFO: Added keywords to args of function 'tf.reduce_sum'
+46:23: INFO: Renamed 'tf.squared_difference' to 'tf.math.squared_difference'
+47:15: INFO: Changed tf.to_float call to tf.cast(..., dtype=tf.float32).
+54:18: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+54:18: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+54:109: INFO: tf.initializers.glorot_uniform requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+54:109: INFO: Renamed 'tf.initializers.glorot_uniform' to 'tf.compat.v1.initializers.glorot_uniform'
+55:15: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+55:15: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+55:82: INFO: tf.initializers.glorot_uniform requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+55:82: INFO: Renamed 'tf.initializers.glorot_uniform' to 'tf.compat.v1.initializers.glorot_uniform'
+56:10: INFO: Added keywords to args of function 'tf.nn.conv2d'
+56:10: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+58:10: INFO: Renamed 'tf.layers.batch_normalization' to 'tf.compat.v1.layers.batch_normalization'
+60:11: INFO: Changing keep_prob arg of tf.nn.dropout to rate, and recomputing value.
+
+81:11: INFO: Added keywords to args of function 'tf.nn.max_pool'
+81:11: INFO: Renamed keyword argument for tf.nn.max_pool from value to input
+81:11: INFO: Renamed 'tf.nn.max_pool' to 'tf.nn.max_pool2d'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/convlstm.py'
+ outputting to 'sofilstm_v2/convlstm.py'
+--------------------------------------------------------------------------------
+
+24:24: INFO: Renamed 'tf.contrib.rnn.RNNCell' to 'tf.compat.v1.nn.rnn_cell.RNNCell'
+39:12: INFO: Renamed 'tf.contrib.rnn.LSTMStateTuple' to 'tf.nn.rnn_cell.LSTMStateTuple'
+48:9: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+58:15: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+58:15: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+59:15: INFO: Added keywords to args of function 'tf.nn.conv2d'
+59:15: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+67:20: INFO: Renamed 'tf.contrib.rnn.LSTMStateTuple' to 'tf.nn.rnn_cell.LSTMStateTuple'
+73:19: INFO: Renamed 'tf.nn.rnn_cell.RNNCell' to 'tf.compat.v1.nn.rnn_cell.RNNCell'
+100:11: INFO: Renamed 'tf.nn.rnn_cell.LSTMStateTuple' to 'tf.compat.v1.nn.rnn_cell.LSTMStateTuple'
+112:8: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+112:8: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+113:8: INFO: Added keywords to args of function 'tf.nn.convolution'
+113:8: INFO: Renamed keyword argument for tf.nn.convolution from filter to filters
+115:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+115:11: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+115:52: INFO: tf.zeros_initializer requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+115:52: INFO: Renamed 'tf.zeros_initializer' to 'tf.compat.v1.zeros_initializer'
+119:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+119:11: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+120:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+120:11: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+123:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+123:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+124:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+124:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+125:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+125:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+132:11: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+132:11: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+135:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+135:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+136:10: WARNING: tf.contrib.layers.layer_norm requires manual check. (Manual edit required) `tf.contrib.layers.layer_norm` has been deprecated, and its implementation has been integrated with `tf.keras.layers.LayerNormalization` in TensorFlow 2.0. Note that, the default value of `epsilon` is changed to `1e-3` in the new API from `1e-12`, and this may introduce numerical differences. Please check the new API and use that instead.
+136:10: ERROR: Using member tf.contrib.layers.layer_norm in deprecated module tf.contrib. tf.contrib.layers.layer_norm cannot be converted automatically. tf.contrib will not be distributed with TensorFlow 2.0, please consider an alternative in non-contrib TensorFlow, a community-maintained repository such as tensorflow/addons, or fork the required code.
+141:12: INFO: Renamed 'tf.nn.rnn_cell.LSTMStateTuple' to 'tf.compat.v1.nn.rnn_cell.LSTMStateTuple'
+153:15: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+161:25: INFO: Renamed 'tf.nn.dynamic_rnn' to 'tf.compat.v1.nn.dynamic_rnn'
+162:13: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+164:21: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+177:17: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+180:25: INFO: Renamed 'tf.nn.dynamic_rnn' to 'tf.compat.v1.nn.dynamic_rnn'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/BASICLSTM/bouncing_balls.py'
+ outputting to 'sofilstm_v2/BASICLSTM/bouncing_balls.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/BASICLSTM/convlstmbasic.py'
+ outputting to 'sofilstm_v2/BASICLSTM/convlstmbasic.py'
+--------------------------------------------------------------------------------
+
+67:6: INFO: Renamed 'tf.logging.warn' to 'tf.compat.v1.logging.warn'
+77:12: INFO: Renamed 'tf.nn.rnn_cell.LSTMStateTuple' to 'tf.compat.v1.nn.rnn_cell.LSTMStateTuple'
+86:9: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+102:20: INFO: Renamed 'tf.nn.rnn_cell.LSTMStateTuple' to 'tf.compat.v1.nn.rnn_cell.LSTMStateTuple'
+135:7: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+136:13: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+136:13: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+139:12: INFO: Added keywords to args of function 'tf.nn.conv2d'
+139:12: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+141:12: INFO: Added keywords to args of function 'tf.nn.conv2d'
+141:12: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+144:16: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+144:16: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+147:20: INFO: tf.constant_initializer requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+147:20: INFO: Renamed 'tf.constant_initializer' to 'tf.compat.v1.constant_initializer'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/BASICLSTM/test_convlstmbasic.py'
+ outputting to 'sofilstm_v2/BASICLSTM/test_convlstmbasic.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/BASICLSTM/layer_def.py'
+ outputting to 'sofilstm_v2/BASICLSTM/layer_def.py'
+--------------------------------------------------------------------------------
+
+29:2: INFO: tf.summary.histogram requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+29:2: INFO: Renamed 'tf.summary.histogram' to 'tf.compat.v1.summary.histogram'
+30:2: INFO: tf.summary.scalar requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+30:2: INFO: Renamed 'tf.summary.scalar' to 'tf.compat.v1.summary.scalar'
+42:10: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+42:10: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+60:25: INFO: tf.truncated_normal_initializer requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+60:25: INFO: Renamed 'tf.truncated_normal_initializer' to 'tf.compat.v1.truncated_normal_initializer'
+64:4: INFO: Renamed 'tf.add_to_collection' to 'tf.compat.v1.add_to_collection'
+68:7: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+72:54: INFO: tf.constant_initializer requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+72:54: INFO: Renamed 'tf.constant_initializer' to 'tf.compat.v1.constant_initializer'
+74:11: INFO: Added keywords to args of function 'tf.nn.conv2d'
+74:11: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+82:7: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+86:54: INFO: tf.constant_initializer requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+86:54: INFO: Renamed 'tf.constant_initializer' to 'tf.compat.v1.constant_initializer'
+87:17: INFO: Added keywords to args of function 'tf.shape'
+88:29: INFO: Added keywords to args of function 'tf.shape'
+88:50: INFO: Added keywords to args of function 'tf.shape'
+88:78: INFO: Added keywords to args of function 'tf.shape'
+98:7: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+108:51: INFO: tf.constant_initializer requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+108:51: INFO: Renamed 'tf.constant_initializer' to 'tf.compat.v1.constant_initializer'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'sofilstm/BASICLSTM/train_convlstmbasic.py'
+ outputting to 'sofilstm_v2/BASICLSTM/train_convlstmbasic.py'
+--------------------------------------------------------------------------------
+
+49:9: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+49:54: INFO: tf.random_uniform_initializer requires manual check. Initializers no longer have the dtype argument in the constructor or partition_info argument in the __call__ method.
+The calls have been converted to compat.v1 for safety (even though they may already have been correct).
+49:54: INFO: Renamed 'tf.random_uniform_initializer' to 'tf.compat.v1.random_uniform_initializer'
+74:3: INFO: Renamed 'tf.gfile.Exists' to 'tf.io.gfile.exists'
+75:4: INFO: Renamed 'tf.gfile.DeleteRecursively' to 'tf.io.gfile.rmtree'
+76:0: INFO: Renamed 'tf.gfile.MakeDirs' to 'tf.io.gfile.makedirs'
+82:4: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+85:12: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+86:12: INFO: Changing keep_prob arg of tf.nn.dropout to rate, and recomputing value.
+
+102:11: INFO: Added keywords to args of function 'tf.transpose'
+116:13: INFO: Added keywords to args of function 'tf.transpose'
+120:0: INFO: tf.summary.scalar requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+120:0: INFO: Renamed 'tf.summary.scalar' to 'tf.compat.v1.summary.scalar'
+123:11: INFO: Renamed 'tf.train.AdamOptimizer' to 'tf.compat.v1.train.AdamOptimizer'
+126:12: INFO: Renamed 'tf.global_variables' to 'tf.compat.v1.global_variables'
+129:8: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+129:23: INFO: Renamed 'tf.global_variables' to 'tf.compat.v1.global_variables'
+132:13: INFO: tf.summary.merge_all requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+132:13: INFO: Renamed 'tf.summary.merge_all' to 'tf.compat.v1.summary.merge_all'
+135:7: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+138:7: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+146:17: INFO: tf.summary.FileWriter requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+146:17: INFO: Renamed 'tf.summary.FileWriter' to 'tf.compat.v1.summary.FileWriter'
+165:4: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+
