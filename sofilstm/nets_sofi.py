@@ -11,7 +11,7 @@ import sofilstm.subpixel as subpixel
 
 from keras.layers import BatchNormalization, Conv2D, Dropout
 
-def sofi_decoder(x, y, keep_prob, phase, hidden_num=4, kernel_size=3, summaries=True, Ntime=30, is_normalize=False, is_peephole=False):
+def sofi_decoder(x, y, keep_prob, phase, hidden_num=4, kernel_size=3, summaries=True, Ntime=30, is_normalize=False, is_peephole=False, is_tflite=False):
     """
     Creates a new convolutional unet for the given parametrization.
     
@@ -45,7 +45,7 @@ def sofi_decoder(x, y, keep_prob, phase, hidden_num=4, kernel_size=3, summaries=
         p_input_list = [tf.squeeze(p_input_, [3]) for p_input_ in p_input_list]
     
         # create the convlstm2d cell
-        cell = convlstmExperimental.ConvLSTMCell(hidden_num, is_normalize=is_normalize, is_peephole=is_peephole) # hidden_num 1
+        cell = convlstmExperimental.ConvLSTMCell(hidden_num, is_normalize=is_normalize, is_peephole=is_peephole, is_tflite=is_tflite) # hidden_num 1
         state = cell.zero_state(batch_size, Nx, Ny)
         #state = tf.truncated_normal(shape=[batch_size, Nx, Ny, hidden_num_1*2], stddev=.5)        
         
@@ -59,13 +59,25 @@ def sofi_decoder(x, y, keep_prob, phase, hidden_num=4, kernel_size=3, summaries=
          
         # Feature extraction
         #Conv_t_BN = BatchNormalization()(Conv_t)
-        Conv_t_do = tf.nn.dropout(Conv_t, keep_prob)
+        if(not is_tflite):
+            Conv_t_do = tf.nn.dropout(Conv_t, keep_prob)
+        else:
+            Conv_t_do = Conv_t
         Conv_0 = Conv2D(4, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(Conv_t_do)
-        Conv_0_do = tf.nn.dropout(Conv_0, keep_prob)
+        
+        if(not is_tflite):
+            Conv_0_do = tf.nn.dropout(Conv_0, keep_prob)
+        else:
+            Conv_0_do = Conv_0
+        
         #Conv_0_BN = BatchNormalization()(Conv_0)
         # Subpixel upsampling
         Conv_1 = tf.depth_to_space(Conv_0_do, 2)
-        Conv_1_do = tf.nn.dropout(Conv_1, keep_prob)
+        
+        if(not is_tflite):
+            Conv_1_do = tf.nn.dropout(Conv_1, keep_prob)
+        else:
+            Conv_1_do = Conv_1
         Conv_2 = Conv2D(1, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(Conv_1_do)
         Conv_3 = Conv_2
     else:

@@ -27,7 +27,8 @@ class ConvLSTMCell(object):
     """
     def __init__(self, num_features, filter_size=[3,3], 
                  forget_bias=1.0, activation=tanh, name="ConvLSTMCell",  
-                 is_normalize=False, is_peephole=False):
+                 is_normalize=False, is_peephole=False,
+                 is_tflite=False):
       self.num_features = num_features
       self.filter_size = filter_size
       self.forget_bias = forget_bias
@@ -36,6 +37,7 @@ class ConvLSTMCell(object):
       self._normalize = is_normalize
       self._peephole = is_peephole
       self._forget_bias= 1.0
+      self.is_tflite = is_tflite
 
     def zero_state(self, batch_size, height, width):
         return tf.zeros([batch_size, height, width, self.num_features*2])
@@ -62,8 +64,12 @@ class ConvLSTMCell(object):
         n = inputs.shape[-1].value
         m = 4 * self.num_features if self.num_features > 1 else 4
         
-        init = tf.keras.initializers.glorot_uniform()
-        W = tf.get_variable('kernel', self.filter_size + [n, m], initializer=init)
+        if(self.is_tflite):
+            W = tf.get_variable('kernel', self.filter_size + [n, m])
+        else:
+            init = tf.keras.initializers.glorot_uniform()
+            W = tf.get_variable('kernel', self.filter_size + [n, m], initializer=init)
+            
         y = tf.nn.convolution(inputs, W, 'SAME', data_format=None)
         if not self._normalize:
             y += tf.get_variable('bias', [m], initializer=tf.zeros_initializer())

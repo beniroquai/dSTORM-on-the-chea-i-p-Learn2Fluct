@@ -24,7 +24,7 @@ features_root = 4
 
 # args for training
 batch_size = 1
-Ntime = 32   # number of time-steps for one 3D volume
+Ntime = 20   # number of time-steps for one 3D volume
 valid_size = batch_size  # batch size for validating (must be same as batch_size!)
 optimizer = "adam"  # optimizer we want to use, 'adam' or 'momentum'
 Nx, Ny = 256, 256 # final size of the image
@@ -41,7 +41,7 @@ model_path = './final/'
 
 
 tf.reset_default_graph()
-net = sofi.SOFI(Nx=Nx, Ny=Ny, batchsize=batch_size, features_root=features_root, Ntime = Ntime)
+net = sofi.SOFI(Nx=Nx, Ny=Ny, batchsize=batch_size, features_root=features_root, Ntime = Ntime, is_tflite=True)
 
 net.saveTFLITE(model_path+'model.cpkt', outputmodelpath='converted_model'+str(Nx)+'_'+str(Ntime)+'.tflite')
 

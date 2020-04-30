@@ -41,7 +41,7 @@ class SOFI(object):
     :param kwargs: args passed to create_net function. 
     """
    
-    def __init__(self, batchsize=4, Nx=None, Ny=None, features_root = 1, Ntime=9, lambda_l1=0., lambda_l2=1.):
+    def __init__(self, batchsize=4, Nx=None, Ny=None, features_root = 1, Ntime=9, lambda_l1=0., lambda_l2=1., is_tflite=False):
 
        # reused variables
         self.summaries = True
@@ -51,9 +51,15 @@ class SOFI(object):
         self.lambda_l2 = lambda_l2
         self.batchsize = batchsize # tf.shape(self.x)[0]    # 1
         self.img_channels = 1
-        self.phase = tf.placeholder(tf.bool, name='phase')
-        self.keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
-        
+        if(is_tflite):
+            # these are constants
+            self.phase = tf.constant(True, name='phase')
+            self.keep_prob = tf.constant(1., tf.float32) #dropout (keep probability)
+        else:
+            self.phase = tf.placeholder(tf.bool, name='phase')
+            self.keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
+
+            
         if(Nx is not None or Ny is not None):
             # in case we do know about the input dimensions
             self.nx = Nx//2
@@ -76,7 +82,7 @@ class SOFI(object):
 
         self.recons = sofi_decoder(x=self.input_reshape, y=self.y, 
                                    keep_prob=self.keep_prob, phase=self.phase,
-                                   hidden_num=self.features_root, Ntime=self.Ntime)
+                                   hidden_num=self.features_root, Ntime=self.Ntime, is_tflite=is_tflite)
         
         self.output_ = tf.reshape(self.recons, [self.batchsize*self.nx*self.ny*4])
  
