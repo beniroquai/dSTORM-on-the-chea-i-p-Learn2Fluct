@@ -34,7 +34,7 @@ Nx = 100
 Ny = 100
 features = 1
 Nchannel = 1
-model_dir = '.\\network'
+model_dir = '.\\\\network'
 network_type = 'SOFI_ConvLSTM2D'
 
 Nepochs = 1
@@ -48,10 +48,10 @@ if platform == "linux" or platform == "linux2":
 elif platform == "darwin":
 	train_data_path = './test' # OS X
 elif platform == 'win32':
-    base_dir = '.\\'
-    #data_dir = base_dir+'data\\data_downconverted_4'; upscaling=4;
-    #data_dir = base_dir+'data\\data_raw'; upscaling=1;
-    data_dir = base_dir+'data\\data_downconverted_2'; upscaling=2;
+    base_dir = ''#.\\'
+    #data_dir = base_dir+'data\\\\data_downconverted_4'; upscaling=4;
+    #data_dir = base_dir+'data\\\\data_raw'; upscaling=1;
+    data_dir = base_dir+'C:\\Users\\diederichbenedict\\Dropbox\\Dokumente\\Promotion\\PROJECTS\\STORMoChip\\PYTHON\\Learn2Fluct\\convLSTM_predicttimeseries\data\\data'; upscaling=2;
 
 
 # define the data generator
