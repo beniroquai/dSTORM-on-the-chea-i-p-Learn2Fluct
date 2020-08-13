@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 myfolder = '/Users/bene/Dropbox/20200318_121415884/'
 myfolder = '/Users/bene/Dropbox/Dokumente/Promotion/PROJECTS/STORMoChip/DATA/20200422_181103263_EColi_Fluct/'
 myfolder = '/Users/bene/Downloads/20200504_084015766__EColi_Fluct_stability/'
-myfolder = '/Users/bene/Downloads/20200505_170647713_HUVEC_Phaloidin_AF647/'
+myfolder = './2020_06_09-17_29_24-HeLa_Siliconrhodamine_livecell_HeLa_overnight_100x_NA1.25_10x_STORMIMAGER/'
 # myfolder = '/Users/bene/Downloads/20200505_160633020_HUVECS_SYTO6/'
 myframes = []
 tperiod = 1
@@ -24,7 +24,7 @@ mytime = 0
 
 roi = 1024
 
-for ifile in range(1,100):
+for ifile in range(1,1000):
     try:
         filename=myfolder+'VID_'+str(ifile)+'.mp4'
         cap = cv2.VideoCapture(filename)
@@ -46,6 +46,9 @@ for ifile in range(1,100):
         gray = (cv2.putText(img=np.copy(gray), text="t="+str(mytime)+" min", org=(roi//2+200, roi//2+400),fontFace=2, fontScale=1, color=(int(mymean),int(mymean),int(mymean)), thickness=2))
         #gray =cv2.putText(img=np.copy(gray), text="t="+str(mytime)+" min", org=(850-roi,1000-roi),fontFace=2, fontScale=1, color=(1,1,1), thickness=2)
         mytime += tperiod
+
+        # save images 
+        tif.imsave(myfolder+'myresults.tif', myframes, append=true)
 
         myframes.append(gray)
     except:
