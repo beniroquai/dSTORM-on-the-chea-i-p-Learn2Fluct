@@ -36,13 +36,14 @@ class DataGenerator(keras.utils.Sequence):
 
     def __init__(self, search_path, mysize=None, n_batch = 1, n_time=9, downscaling=2, test=False, \
                      n_modes = 50, mode_max_angle = 15, kernelsize = 1, n_photons = 100, n_readnoise = 10, \
-                     quality_jpeg=80, max_background= 3, shuffle=True):
+                     quality_jpeg=80, max_background= 3, shuffle=True, reshape=True):
         """ Initialization """
         self.mysize = mysize
         self.Nx, self.Ny = mysize[0],mysize[1]
         self.downscaling = downscaling
         self.n_batch = n_batch
         self.shuffle = shuffle
+        self.reshape = reshape # for tflite only
         
         self.file_idx = -1
         self.timestep_idx = 0
@@ -103,7 +104,7 @@ class DataGenerator(keras.utils.Sequence):
         """ Generate one batch of data """
         
         # Generate data
-        X, y = self.__data_generation(index, reshape=False)
+        X, y = self.__data_generation(index)
 
         return X, y
     
@@ -113,7 +114,7 @@ class DataGenerator(keras.utils.Sequence):
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
-    def __data_generation(self, data_files_temp, reshape=True):
+    def __data_generation(self, data_files_temp):
         """ Generates data containing n_batch samples """
         myally = []
         myallX = []
@@ -137,7 +138,7 @@ class DataGenerator(keras.utils.Sequence):
         myally = np.expand_dims(np.array(myally), -1)
 
         # reshape for the use with tflite
-        if reshape:
+        if self.reshape:
             myallX = np.reshape(myallX, (self.n_batch, self.Nx*self.Ny*self.n_time//(self.downscaling*2)))
             myally = np.reshape(myally, (self.n_batch, self.Nx*self.Ny))
             

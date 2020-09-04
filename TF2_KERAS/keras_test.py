@@ -102,13 +102,15 @@ Niter = 1000
 if platform == "linux" or platform == "linux2":
     base_dir = './'
     data_dir = base_dir+'data_downconverted'; upscaling=2;
-elif platform == "darwin":
-	train_data_path = './test' # OS X
+elif platform == "darwin":  # OS X
+    data_dir = './data'
+    upscaling=2
 elif platform == 'win32':
     base_dir = ''#.\\'
     #data_dir = base_dir+'data\\\\data_downconverted_4'; upscaling=4;
     #data_dir = base_dir+'data\\\\data_raw'; upscaling=1;
-    data_dir = base_dir+'C:\\Users\\diederichbenedict\\Dropbox\\Dokumente\\Promotion\\PROJECTS\\STORMoChip\\PYTHON\\Learn2Fluct\\convLSTM_predicttimeseries\data\\data'; upscaling=2;
+    data_dir = base_dir+'C:\\Users\\diederichbenedict\\Dropbox\\Dokumente\\Promotion\\PROJECTS\\STORMoChip\\PYTHON\\Learn2Fluct\\convLSTM_predicttimeseries\data\\data'; 
+    upscaling=2;
 
 
 # define the data generator

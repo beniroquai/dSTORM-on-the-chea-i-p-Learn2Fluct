@@ -86,13 +86,13 @@ def log_images(epoch, logs):
 Ntime = 30
 Nbatch = 1
 Nfilterlstm = 16
-Nx = 256    
-Ny = 256
+Nx = 512    
+Ny = 512
 features = 1
 Nchannel = 1
 model_dir = "logs_bilinear/"# + datetime.now().strftime("%Y%m%d-%H%M%S")
 network_type = 'SOFI_ConvLSTM2D'
-
+is_tflite = False
 # Training parameters
 Nepochs = 150
 Niter = 100
@@ -100,8 +100,8 @@ Niter = 100
 
 # Specify the location with for the training data #
 if platform == "linux" or platform == "linux2":
-    base_dir = './'
-    data_dir = base_dir+'data_downconverted'; upscaling=2;
+    data_dir = '../data/data';
+    upscaling=2 # linux
 elif platform == "darwin":
 	train_data_path = './test' # OS X
 elif platform == 'win32':
@@ -115,15 +115,17 @@ elif platform == 'win32':
 training_generator = data.DataGenerator(data_dir, n_batch=Nbatch,
                 mysize=(Nx, Ny), n_time=Ntime, downscaling=upscaling, \
                 n_modes = 40, mode_max_angle = 15, n_photons = 100, n_readnoise = 10, 
-                kernelsize=2, quality_jpeg=80)
+                kernelsize=2, quality_jpeg=80,
+                reshape=is_tflite)
 validation_generator = data.DataGenerator(data_dir, n_batch=Nbatch,
                 mysize=(Nx, Ny), n_time=Ntime, downscaling=upscaling, \
                 n_modes = 40, mode_max_angle = 15, n_photons = 100, n_readnoise = 10, 
-                kernelsize=2, quality_jpeg=80)
+                kernelsize=2, quality_jpeg=80,
+                reshape=is_tflite)
         
 
 # test dataloader 
-i_testimage=17
+i_testimage=22
 myX,myY = training_generator.__getitem2D__(i_testimage)
 # display images
 plt.subplot(131)
@@ -134,9 +136,10 @@ plt.subplot(133)
 plt.title('raw'), plt.imshow(np.squeeze(myX[0,0,:,:,0])), plt.colorbar()
 plt.show()
 
+import tifffile as tif;  tif.imsave('teststack.tif', np.squeeze(myX))
 # create the model
 print('Create the model!')
-model = net.SOFI(Ntime=Ntime, Nbatch=Nbatch, Nx=Nx, Ny=Ny, features=features, Nchannel=Nchannel, Nfilterlstm=Nfilterlstm)
+model = net.SOFI(Ntime=Ntime, Nbatch=Nbatch, Nx=Nx, Ny=Ny, features=features, Nchannel=Nchannel, Nfilterlstm=Nfilterlstm, reshape=is_tflite)
 input_shape=(1,Nbatch*Nx//2*Ny//2*Ntime)
 model.build(input_shape)
 
@@ -155,10 +158,7 @@ model.compile(loss=losstype,
               metrics=['accuracy'])
 
 print(model.summary())
-
-model.save('test.hdf5')
-
-
+adsf
 # Save model checkpoints # Define the per-epoch callback.
 name = network_type+str(time.time())
 tensorboard_callback = tensorboard = TensorBoard(log_dir=model_dir)
@@ -224,7 +224,7 @@ model = tf.keras.models.load_model('test.hdf5')
 model.summary()
 Nbatch, Ntime, Nx, Ny = model.layers[1].output_shape
 
-filepath= 'C://Users//diederichbenedict//Dropbox//Dokumente//Promotion//PROJECTS//STORMoChip//WEBSITE//stormocheap//STORMjs//'
+filepath= './'# 'C://Users//diederichbenedict//Dropbox//Dokumente//Promotion//PROJECTS//STORMoChip//WEBSITE//stormocheap//STORMjs//'
 filename = 'converted_model'+str(Nx)+'_'+str(Ntime)+'_keras'
 tfjs.converters.save_keras_model(model, filepath+filename) 
 
