@@ -11,7 +11,8 @@ import tensorflow as tf
 import numpy as np
 
 
-def SOFI(Ntime=1, Nbatch=1, Nx=100, Ny=100, features=1, Nchannel=1, upsample=2, Nfilterlstm=4, NKernelsizelstm=3, reshape=False):
+def SOFI(Ntime=1, Nbatch=1, Nx=100, Ny=100, features=1, Nchannel=1, upsample=2, Nfilterlstm=4, NKernelsizelstm=3, export_type='tflite'):
+
     '''define model'''
     # create our model here
     kernel_size = NKernelsizelstm
@@ -23,17 +24,16 @@ def SOFI(Ntime=1, Nbatch=1, Nx=100, Ny=100, features=1, Nchannel=1, upsample=2, 
 
 
     # convert the 1D vector into the appropriate 4D tensor (for Android)
-    if(reshape):
+    if(export_type=='tfjs'):
         inputs_reshape = Reshape(target_shape=(Ntime,Nx//upsample,Ny//upsample), name='reshape_3d')(inputs)
         input_norm = inputs_reshape 
-    
-        # normalization of the input (necessary for TFLite -> compuational more efficient)
-        #input_norm = input_norm - tf.reduce_min(inputs_reshape)#, axis=[1,2,3])
-        #input_norm = input_norm/tf.reduce_max(input_norm) #, axis=[1,2,3])
         input_norm = Reshape(target_shape=(Ntime,Nx//upsample,Ny//upsample,1), name='reshape_4d')(input_norm)
         print('ATTENTION: We need to normalize over one batch only, higher numbers are not allowed due to Tensorflowjs!')
-    else:
+    elif(export_type=='tflite'):
+        # normalization of the input (necessary for TFLite -> compuational more efficient)
         input_norm = Reshape(target_shape=(Ntime,Nx//upsample,Ny//upsample,1), name='reshape_4d')(inputs)
+        input_norm = input_norm - tf.reduce_min(input_norm)
+        input_norm = input_norm/tf.reduce_max(input_norm)
                                                
    # temporal feature extractoin 
     ConvLSTM_1= ConvLSTM2D(filters=nfilters_lstm , kernel_size=(kernel_size, kernel_size)
@@ -44,27 +44,21 @@ def SOFI(Ntime=1, Nbatch=1, Nx=100, Ny=100, features=1, Nchannel=1, upsample=2, 
                        , return_sequences=False
                        , name='convlstm2d_1')(input_norm)
     
-    #BatchNorm_1 = BatchNormalization(name='batchnorm_1')(ConvLSTM_1)
-    
-    if(0):
-        # convLSTM 2
-        ConvLSTM_2= ConvLSTM2D(filters=nfilters_lstm, kernel_size=(kernel_size, kernel_size)
-                           , data_format='channels_last'
-                           , recurrent_activation='hard_sigmoid'
-                           , activation='tanh'
-                           , padding='same', return_sequences=False)(BatchNorm_1)
-        
-        BatchNorm_2 = BatchNormalization()(ConvLSTM_2)
-    else: 
+    #
+    if(export_type=='tfjs'):
+        print('Skipping Batchnorm since TFJs does not support it yet...')
         BatchNorm_2 = ConvLSTM_1
-    
-    if(1):
+        
         # Feature extraction 
         Conv_1 = Conv2D(16, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu', name='conv_1')(BatchNorm_2)
         Conv_2 = UpSampling2D(size=(2,2), name='upsampling_1')(Conv_1)
         Conv_3 = Conv2D(1, kernel_size=kernel_size, padding = 'same')(Conv_2)
 
-    else:
+        Conv_3_reshape = Conv_3
+        
+    elif(export_type=='tflite'):
+        BatchNorm_2 = BatchNormalization(name='batchnorm_1')(ConvLSTM_1)
+        
         # Feature extraction 
         #Conv_1 = Conv2D(upsample**2, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(BatchNorm_2)
             
@@ -73,12 +67,10 @@ def SOFI(Ntime=1, Nbatch=1, Nx=100, Ny=100, features=1, Nchannel=1, upsample=2, 
         
         # Feature extraction 
         Conv_3 = Conv2D(1, kernel_size, strides=(1, 1), padding='same', data_format='channels_last',  activation='relu')(Conv_2)
-        
-    # reshape it back into a 1D vector     
-    if(reshape):
+
+        # reshape it back into a 1D vector     
         Conv_3_reshape = Reshape((Nx*Ny,), name='reshape_2d_1d')(Conv_3)
-    else:
-        Conv_3_reshape = Conv_3
+
     
     # define the output
     seq = Model(inputs=inputs, outputs=Conv_3_reshape, name='learn2sofi')

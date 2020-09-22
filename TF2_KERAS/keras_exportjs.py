@@ -19,7 +19,7 @@ Some sources:
 #%% export tflite
 import tensorflowjs as tfjs
 import tensorflow as tf
-
+import json
 model = tf.keras.models.load_model('test.hdf5')
 model.summary()
 Nbatch, Ntime, Nx, Ny = model.layers[1].output_shape
@@ -29,7 +29,7 @@ filename = 'converted_model'+str(Nx)+'_'+str(Ntime)+'_keras'
 tfjs.converters.save_keras_model(model, filepath+filename) 
 
 # Bugfix
-import json
+
 
 with open(filepath+filename+'//model.json') as json_file:
     data = json.load(json_file)

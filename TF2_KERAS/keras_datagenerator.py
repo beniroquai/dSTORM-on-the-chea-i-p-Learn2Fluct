@@ -36,14 +36,15 @@ class DataGenerator(keras.utils.Sequence):
 
     def __init__(self, search_path, mysize=None, n_batch = 1, n_time=9, downscaling=2, test=False, \
                      n_modes = 50, mode_max_angle = 15, kernelsize = 1, n_photons = 100, n_readnoise = 10, \
-                     quality_jpeg=80, max_background= 3, shuffle=True, reshape=True):
+                     quality_jpeg=80, max_background= 3, shuffle=True, export_type = 'tflite'):
         """ Initialization """
         self.mysize = mysize
         self.Nx, self.Ny = mysize[0],mysize[1]
         self.downscaling = downscaling
         self.n_batch = n_batch
         self.shuffle = shuffle
-        self.reshape = reshape # for tflite only
+        if export_type=='tflite': self.reshape = True
+        elif export_type=='tfjs': self.reshape = False
         
         self.file_idx = -1
         self.timestep_idx = 0

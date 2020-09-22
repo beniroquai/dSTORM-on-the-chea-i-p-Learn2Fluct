@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from sys import platform
 import io
+import tifffile as tif
 
 import matplotlib as mpl
 mpl.rc('figure',  figsize=(24, 20))
@@ -86,22 +87,23 @@ def log_images(epoch, logs):
 Ntime = 30
 Nbatch = 1
 Nfilterlstm = 16
-Nx = 256    
-Ny = 256
+Nx = 512    
+Ny = 512
 features = 1
 Nchannel = 1
-model_dir = "logs_bilinear/"# + datetime.now().strftime("%Y%m%d-%H%M%S")
+model_dir = "logs/"# + datetime.now().strftime("%Y%m%d-%H%M%S")
 network_type = 'SOFI_ConvLSTM2D'
+export_type = 'tfjs' #'tflite' # or 'tfjs'
 
 # Training parameters
-Nepochs = 1
-Niter = 1
+Nepochs = 150
+Niter = 100
 
 
 # Specify the location with for the training data #
 if platform == "linux" or platform == "linux2":
-    base_dir = './'
-    data_dir = base_dir+'data_downconverted'; upscaling=2;
+    data_dir = '../data/data';
+    upscaling=2 # linux
 elif platform == "darwin":
 	train_data_path = './test' # OS X
 elif platform == 'win32':
@@ -115,28 +117,32 @@ elif platform == 'win32':
 training_generator = data.DataGenerator(data_dir, n_batch=Nbatch,
                 mysize=(Nx, Ny), n_time=Ntime, downscaling=upscaling, \
                 n_modes = 40, mode_max_angle = 15, n_photons = 100, n_readnoise = 10, 
-                kernelsize=2, quality_jpeg=80)
+                kernelsize=2, quality_jpeg=80,
+                export_type=export_type)
 validation_generator = data.DataGenerator(data_dir, n_batch=Nbatch,
                 mysize=(Nx, Ny), n_time=Ntime, downscaling=upscaling, \
                 n_modes = 40, mode_max_angle = 15, n_photons = 100, n_readnoise = 10, 
-                kernelsize=2, quality_jpeg=80)
+                kernelsize=2, quality_jpeg=80,
+                export_type=export_type)
         
-
-# test dataloader 
-i_testimage=17
-myX,myY = training_generator.__getitem2D__(i_testimage)
-# display images
-plt.subplot(131)
-plt.title('SR'), plt.imshow(np.squeeze(myY[0,])), plt.colorbar()
-plt.subplot(132)
-plt.title('mean'), plt.imshow(np.squeeze(np.mean(myX[0,],axis=(0,-1)))), plt.colorbar()
-plt.subplot(133)
-plt.title('raw'), plt.imshow(np.squeeze(myX[0,0,:,:,0])), plt.colorbar()
-plt.show()
+if(export_type=='tfjs'):
+    # test dataloader 
+    i_testimage=22
+    myX,myY = training_generator.__getitem2D__(i_testimage)
+    # display images
+    plt.subplot(131)
+    plt.title('SR'), plt.imshow(np.squeeze(myY[0,])), plt.colorbar()
+    plt.subplot(132)
+    plt.title('mean'), plt.imshow(np.squeeze(np.mean(myX[0,],axis=(0,-1)))), plt.colorbar()
+    plt.subplot(133)
+    plt.title('raw'), plt.imshow(np.squeeze(myX[0,0,:,:,0])), plt.colorbar()
+    plt.show()
+    tif.imsave('teststack.tif', np.squeeze(myX))
 
 # create the model
 print('Create the model!')
-model = net.SOFI(Ntime=Ntime, Nbatch=Nbatch, Nx=Nx, Ny=Ny, features=features, Nchannel=Nchannel, Nfilterlstm=Nfilterlstm)
+model = net.SOFI(Ntime=Ntime, Nbatch=Nbatch, Nx=Nx, Ny=Ny, features=features,
+                 Nchannel=Nchannel, Nfilterlstm=Nfilterlstm, export_type=export_type)
 input_shape=(1,Nbatch*Nx//2*Ny//2*Ntime)
 model.build(input_shape)
 
@@ -153,11 +159,6 @@ losstype = tf.keras.losses.mean_absolute_error
 model.compile(loss=losstype,
               optimizer=optimizer,
               metrics=['accuracy'])
-
-print(model.summary())
-
-model.save('test.hdf5')
-
 
 # Save model checkpoints # Define the per-epoch callback.
 name = network_type+str(time.time())
@@ -224,7 +225,7 @@ model = tf.keras.models.load_model('test.hdf5')
 model.summary()
 Nbatch, Ntime, Nx, Ny = model.layers[1].output_shape
 
-filepath= 'C://Users//diederichbenedict//Dropbox//Dokumente//Promotion//PROJECTS//STORMoChip//WEBSITE//stormocheap//STORMjs//'
+filepath= './'# 'C://Users//diederichbenedict//Dropbox//Dokumente//Promotion//PROJECTS//STORMoChip//WEBSITE//stormocheap//STORMjs//'
 filename = 'converted_model'+str(Nx)+'_'+str(Ntime)+'_keras'
 tfjs.converters.save_keras_model(model, filepath+filename) 
 
