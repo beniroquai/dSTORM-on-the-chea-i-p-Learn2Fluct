@@ -84,9 +84,32 @@ Make sure you set the variable ```export_type='tfjs'```
 For exporting the file please use the file [keras_exportjs.py](./TF2_KERAS/keras_exportjs.py). The resulting file ```XXXX.json``` needs to be copied to your tensorflowjs  project.
 
 
-## Experimental Results
-empty
 
+## Testing Data
+
+You can create your own SOFI data using the script [keras_generateteststack.py](./TF2_KERAS/keras_generateteststack.py).
+
+### Teststacks
+
+#### Artificial Data
+
+We provide an artificial sample stack here which has dimensions of ```txy=30x128x128```:
+
+<p align="center">
+<img src="./IMAGES/Figure 2020-09-23 132053.png" width="500">
+</p>
+
+The timestack is available [here](./testdata/01_artificial_sofi_timeseries_txy.tif). The groundtruth result is available [here](./testdata/01_artificial_sofi_groundtruth_txy.tif).
+
+#### Experimental Data
+
+We provide an experimental sample stack here which has dimensions of ```txy=30x128x128```:
+
+<p align="center">
+<img src="./IMAGES/Figure 2020-09-23 132053_2.png" width="500">
+</p>
+
+The timestack is available [here](./testdata/02_measurment_ecoli_sofi_timeseries_txy.tif). 
 
 
 ### Training
