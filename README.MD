@@ -72,7 +72,11 @@ Make sure you set the variable ```export_type='tflite'```
 For exporting the file please use the file [keras_exporttflite.py](./TF2_KERAS/keras_exporttflite.py). The resulting file ```XXXX.tflite``` needs to be copied to your android project.
 
 
-### TensorflowJs to be used in your browser
+## TensorflowJs to be used in your browser
+
+### General Steps
+
+#### Training
 
 Use the file  [keras_train.py](./TF2_KERAS/keras_train.py) and change the variable ```data_dir``` to point to the folder of downloaded ```.TIFF```-images.
 After training has succeeded, a model is exported called ```test.hdf5```
