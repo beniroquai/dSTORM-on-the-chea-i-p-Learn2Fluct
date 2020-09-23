@@ -72,11 +72,7 @@ Make sure you set the variable ```export_type='tflite'```
 For exporting the file please use the file [keras_exporttflite.py](./TF2_KERAS/keras_exporttflite.py). The resulting file ```XXXX.tflite``` needs to be copied to your android project.
 
 
-## TensorflowJs to be used in your browser
-
-### General Steps
-
-#### Training
+#### TensorflowJs to be used in your browser
 
 Use the file  [keras_train.py](./TF2_KERAS/keras_train.py) and change the variable ```data_dir``` to point to the folder of downloaded ```.TIFF```-images.
 After training has succeeded, a model is exported called ```test.hdf5```
@@ -103,7 +99,7 @@ We provide an artificial sample stack here which has dimensions of ```txy=30x128
 <img src="./IMAGES/Figure 2020-09-23 132053.png" width="500">
 </p>
 
-The timestack is available [here](./testdata/01_artificial_sofi_timeseries_txy.tif). The groundtruth result is available [here](./testdata/01_artificial_sofi_groundtruth_txy.tif).
+The timestack is available [here](./testdata/TF2_KERAS/01_artificial_sofi_timeseries_txy.tif). The groundtruth result is available [here](./testdata/TF2_KERAS/01_artificial_sofi_groundtruth_txy.tif).
 
 #### Experimental Data
 
@@ -113,7 +109,7 @@ We provide an experimental sample stack here which has dimensions of ```txy=30x1
 <img src="./IMAGES/Figure 2020-09-23 132053_2.png" width="500">
 </p>
 
-The timestack is available [here](./testdata/02_measurment_ecoli_sofi_timeseries_txy.tif). 
+The timestack is available [here](./testdata/TF2_KERAS/02_measurment_ecoli_sofi_timeseries_txy.tif).
 
 
 ### Training
