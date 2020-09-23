@@ -35,36 +35,6 @@ pip install json
 spyder &
 ```
 
-
-## Introduction
-
-The code in this repository may become a little bit confusing. During the creation of the architecture we had to find the best possible network design to produce good super-resolved results, but keeping it simple and light-weight at the same time. Additionally, the number of different operands is very limited when it comes to deployment on mobile devices using ```TFLite``` or in the browser using ```TensorflowJs```. We created two different network types:
-
-
-### TFLite to be used on Android cellphones
-
-Tensorflow Lite is a nice way to export trained models to devices such as cellphones or microcontrollers. A brief introduction can be found [here](https://towardsdatascience.com/a-basic-introduction-to-tensorflow-lite-59e480c57292). It is important to keep in mind that [not all operands are supported](https://www.tensorflow.org/lite/guide/ops_compatibility). Especially the RNN used in this framework was tricky to implement. If you have problems to export it, please use a google colab notebook - it seems Tensorflow GPU does not work with the cLSTM layers..
-
-The network implemented in Keras is available in the folder [.\TF2_KERAS](.\TF2_KERAS).
-
-#### General Structure
-
-***Training***
-
-Use the file  [keras_train.py](./TF2_KERAS/keras_train.py). 
-
-
-
-
-### TensorflowJs to be used in your browser
-
-
-## Experimental Results
-empty
-
-## Usage
-
-
 ### Download Images / Create Dataset
 
 First you can start downloading random images from biological cells. This can for example be done by using the API from OMERO image browser. Please review individual licneses!
@@ -74,6 +44,50 @@ By using ```01_downloadimages.py```available [here](./SCRIPTS/01_downloadimages.
 ### Download Dataset
 
 We provide the training dataset of images used for the publication in a [GDrive folder](https://drive.google.com/drive/folders/1Xv8PxXt7VSZb3fNiXgfviUCi-6OUCqoA?usp=sharing). We do not guarantee to own the rights of the images since they are downloaded from *OMERO* and may have their own license type.
+
+
+# Introduction
+
+The code in this repository may become a little bit confusing. During the creation of the architecture we had to find the best possible network design to produce good super-resolved results, but keeping it simple and light-weight at the same time. Additionally, the number of different operands is very limited when it comes to deployment on mobile devices using ```TFLite``` or in the browser using ```TensorflowJs```. We created two different network types:
+
+
+## TFLite to be used on Android cellphones
+
+Tensorflow Lite is a nice way to export trained models to devices such as cellphones or microcontrollers. A brief introduction can be found [here](https://towardsdatascience.com/a-basic-introduction-to-tensorflow-lite-59e480c57292). It is important to keep in mind that [not all operands are supported](https://www.tensorflow.org/lite/guide/ops_compatibility). Especially the RNN used in this framework was tricky to implement. If you have problems to export it, please use a google colab notebook - it seems Tensorflow GPU does not work with the cLSTM layers..
+
+The network implemented in Keras is available in the folder [.\TF2_KERAS](.\TF2_KERAS).
+
+### General Steps
+
+#### Training
+
+Use the file  [keras_train.py](./TF2_KERAS/keras_train.py) and change the variable ```data_dir``` to point to the folder of downloaded ```.TIFF```-images.
+After training has succeeded, a model is exported called ```test.hdf5```
+
+Make sure you set the variable ```export_type='tflite'```
+
+
+#### Exporting
+
+For exporting the file please use the file [keras_exporttflite.py](./TF2_KERAS/keras_exporttflite.py). The resulting file ```XXXX.tflite``` needs to be copied to your android project.
+
+
+#### TensorflowJs to be used in your browser
+
+Use the file  [keras_train.py](./TF2_KERAS/keras_train.py) and change the variable ```data_dir``` to point to the folder of downloaded ```.TIFF```-images.
+After training has succeeded, a model is exported called ```test.hdf5```
+
+Make sure you set the variable ```export_type='tfjs'```
+
+#### Exporting
+
+For exporting the file please use the file [keras_exportjs.py](./TF2_KERAS/keras_exportjs.py). The resulting file ```XXXX.json``` needs to be copied to your tensorflowjs  project.
+
+
+## Experimental Results
+empty
+
+
 
 ### Training
 
