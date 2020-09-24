@@ -99,7 +99,7 @@ We provide an artificial sample stack here which has dimensions of ```txy=30x128
 <img src="./IMAGES/Figure 2020-09-23 132053.png" width="500">
 </p>
 
-The timestack is available [here](./testdata/TF2_KERAS/01_artificial_sofi_timeseries_txy.tif). The groundtruth result is available [here](./testdata/TF2_KERAS/01_artificial_sofi_groundtruth_txy.tif).
+The timestack is available [here](./TF2_KERAS/testdata/01_artificial_sofi_timeseries_txy.tif). The groundtruth result is available [here](./TF2_KERAS/testdata/01_artificial_sofi_groundtruth_txy.tif).
 
 #### Experimental Data
 
@@ -109,7 +109,7 @@ We provide an experimental sample stack here which has dimensions of ```txy=30x1
 <img src="./IMAGES/Figure 2020-09-23 132053_2.png" width="500">
 </p>
 
-The timestack is available [here](./testdata/TF2_KERAS/02_measurment_ecoli_sofi_timeseries_txy.tif).
+The timestack is available [here](./TF2_KERAS/testdata/02_measurment_ecoli_sofi_timeseries_txy.tif).
 
 
 ### Training
