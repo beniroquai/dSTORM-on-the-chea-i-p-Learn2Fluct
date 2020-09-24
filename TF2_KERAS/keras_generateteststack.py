@@ -72,10 +72,10 @@ myX,myY = data_generator.__getitem__(batch_size_test)
 plt.figure()
 plt.subplot(131)
 plt.title('SR'), plt.imshow(np.squeeze(myY[0,]))#, plt.colorbar()
-plt.subplot(132)
+plt.subplot(121)
 plt.title('Single Frame'), plt.imshow(np.squeeze(myX)[0])#, plt.colorbar()
-plt.subplot(133)
-plt.title('Mean'), plt.imshow(np.squeeze(np.mean(myX[0,],axis=(0,-1))))#, plt.colorbar()
+plt.subplot(122)
+plt.title('Mean'), plt.imshow(np.mean(np.squeeze(myX),axis=(0)))#, plt.colorbar()
 plt.show()
 
 #%%
