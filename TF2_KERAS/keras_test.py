@@ -90,7 +90,7 @@ Nx = 256
 Ny = 256
 features = 1
 Nchannel = 1
-model_dir = "logs_bilinear/"# + datetime.now().strftime("%Y%m%d-%H%M%S")
+model_dir = "ISM/"# + datetime.now().strftime("%Y%m%d-%H%M%S")
 network_type = 'SOFI_ConvLSTM2D'
 
 # Training parameters

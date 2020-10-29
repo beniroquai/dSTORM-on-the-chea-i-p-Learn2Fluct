@@ -36,7 +36,8 @@ class DataGenerator(keras.utils.Sequence):
 
     def __init__(self, search_path, mysize=None, n_batch = 1, n_time=9, downscaling=2, test=False, \
                      n_modes = 50, mode_max_angle = 15, kernelsize = 1, n_photons = 100, n_readnoise = 10, \
-                     quality_jpeg=80, max_background= 3, shuffle=True, export_type = 'tflite'):
+                     quality_jpeg=80, max_background= 3, shuffle=True, export_type = 'tflite', illumination_type='TIRF',
+                     n_pix_on = 1, n_pix_off = 9, n_gauss_illu = 2, n_shift=2):
         """ Initialization """
         self.mysize = mysize
         self.Nx, self.Ny = mysize[0],mysize[1]
@@ -57,6 +58,13 @@ class DataGenerator(keras.utils.Sequence):
         self.n_readnoise = n_readnoise
         self.quality_jpeg = 80
         self.max_background = max_background
+        self.illumination_type = illumination_type
+        
+        # ISM 
+        self.n_pix_on = n_pix_on            # number of pixels which are on in rectangular grid
+        self.n_pix_off = n_pix_off          # number of pixels which are off in rectangular grid
+        self.n_gauss_illu = n_gauss_illu    # psf of illuminatoin
+        self.n_shift = n_shift              # distance between peaks in pixels 
 
         self.test=test
         self.n_class=1
@@ -78,7 +86,7 @@ class DataGenerator(keras.utils.Sequence):
             self.ids=np.random.permutation(len(self.data_files))
 
         # precompute the illumination pattern
-        self.myallilluframes = self._generate_fluctuation_mat()
+        self.myallilluframes = self._generate_illumination_intensity_map()
 
 
         self.on_epoch_end()
@@ -154,23 +162,48 @@ class DataGenerator(keras.utils.Sequence):
         return myallX, myally
     
 
-    def _generate_fluctuation_mat(self):
-        print("Precompute the illumination pattern")
-        n_border = 20 # avoid zero-space in the middle of the pattern
-        myallmodes = np.zeros((self.mysize[0]+n_border, self.mysize[1]+n_border, self.n_time*5))
-        # generate illuminating modes
-        for i_frame in range(self.n_time*5):
-            for i_modes in range(self.n_modes):
-                while(True):
-                    start_x = np.random.randint(0,self.mysize[0]+n_border)
-                    start_y = np.random.randint(0,self.mysize[1]+n_border)
-                    # make sure the angle is not too steep!
-                    if(np.abs(np.arctan((start_x-start_y)/(self.mysize[0]+n_border))/np.pi*180)<self.mode_max_angle):
-                        break
-                # https://stackoverflow.com/questions/31638651/how-can-i-draw-lines-into-numpy-arrays
-                rows, cols, weights = line_aa(start_x, 0, start_y, self.mysize[0]+n_border-1)    # antialias line
-                myallmodes[rows, cols, i_frame] = np.random.randint(20,90)/100
-        return nip.extract(myallmodes, (self.mysize[0], self.mysize[1], self.n_time*5)) #plt.imshow(np.mean(myallmodes,-1)), plt.show()
+    def _generate_illumination_intensity_map(self):
+        
+        if self.illumination_type == 'TIRF':
+            print("Precompute the illumination pattern for TIRF ")
+            n_border = 20 # avoid zero-space in the middle of the pattern
+            myallmodes = np.zeros((self.mysize[0]//self.downscaling+n_border, self.mysize[1]//self.downscaling+n_border, self.n_time*5))
+            # generate illuminating modes
+            for i_frame in range(self.n_time*5):
+                for i_modes in range(self.n_modes):
+                    while(True):
+                        start_x = np.random.randint(0,self.mysize[0]//self.downscaling+n_border)
+                        start_y = np.random.randint(0,self.mysize[1]//self.downscaling+n_border)
+                        # make sure the angle is not too steep!
+                        if(np.abs(np.arctan((start_x-start_y)/(self.mysize[0]//self.downscaling+n_border))/np.pi*180)<self.mode_max_angle):
+                            break
+                    # https://stackoverflow.com/questions/31638651/how-can-i-draw-lines-into-numpy-arrays
+                    rows, cols, weights = line_aa(start_x, 0, start_y, self.mysize[0]//self.downscaling+n_border-1)    # antialias line
+                    myallmodes[rows, cols, i_frame] = np.random.randint(20,90)/100
+            return nip.extract(myallmodes, (self.mysize[0], self.mysize[1], self.n_time*5)) #plt.imshow(np.mean(myallmodes,-1)), plt.show()
+        elif self.illumination_type == "ISM":
+            print("Precompute the illumination pattern for ISM")
+            n_unitcell = self.n_pix_off+self.n_pix_on
+            n_period = n_unitcell//self.n_shift
+            if not self.n_time == n_period**2:
+                print("ADjust the timesteps to be : "+str(n_period**2))
+                error
+            
+
+            ism_pattern_all = []            
+            for ix in range(0,n_unitcell,self.n_shift):
+                for iy in range(0,n_unitcell,self.n_shift):
+                    ism_unitcell = np.zeros((n_unitcell, n_unitcell))
+                    ism_unitcell[ix:ix+self.n_pix_on, iy:iy+self.n_pix_on] = 1
+                    ism_pattern = np.tile(ism_unitcell, [self.mysize[0]//self.downscaling//n_unitcell+1,self.mysize[1]//self.downscaling//n_unitcell+1])
+                    ism_pattern = ism_pattern[:self.mysize[0]//self.downscaling,:self.mysize[1]//self.downscaling]
+                    ism_pattern_all.append(nip.gaussf(ism_pattern, self.n_gauss_illu))
+
+
+            return np.transpose(np.array(ism_pattern_all),(1,2,0))
+                    
+            
+
         # print('Frame: '+str(i_frame))
 
     def _simulate_microscope(self, data):
@@ -190,7 +223,6 @@ class DataGenerator(keras.utils.Sequence):
         # ---------------------------------------------------
 
         # normalize the sample
-        # mysample = nip.resample(mysample, factors =(.5,.5))
         mysample -= np.min(mysample)
         mysample = mysample/np.max(mysample)*self.n_photons
 
@@ -199,15 +231,21 @@ class DataGenerator(keras.utils.Sequence):
         myresultframe_clean = np.zeros((self.mysize[0]//self.downscaling, self.mysize[1]//self.downscaling, self.n_time))
         # iterate over all frames
 
-
+        # downsample data         
+        mysample_sub = cv2.resize(mysample, dsize=None, fx=1/self.downscaling, fy=1/self.downscaling)
+        
         for iframe in range(self.n_time):
             # generate illumination pattern by randomly selecting illumination frames
-            myillutmp = self.myallilluframes[:,:,np.random.randint(0, self.n_time)]
+            if self.illumination_type == "TIRF":
+                myillutmp = self.myallilluframes[:,:,np.random.randint(0, self.n_time)]
+            else:
+                # preserve order for ISM / SIM 
+                myillutmp = self.myallilluframes[:,:,iframe]
 
-            # illuminate the sample with the structured illumination
-            myresultframe = myillutmp*mysample
-            # subsample data
-            myresultframe = cv2.resize(myresultframe, dsize=None, fx=1/self.downscaling, fy=1/self.downscaling)
+
+            # illuminate the sample with the structured illumination    
+            myresultframe = myillutmp*mysample_sub
+            
             #myresultframe = nip.resample(myresultframe, [1/self.downscaling, 1/self.downscaling])/self.downscaling
             myresultframe -= np.min(myresultframe)# handle zeros
 
@@ -222,9 +260,12 @@ class DataGenerator(keras.utils.Sequence):
 
 
             # add compression artifacts
-            encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), self.quality_jpeg]
-            result, encimg = cv2.imencode('.jpg', myresultframe, encode_param)
-            myresultframe_compressed = np.mean(cv2.imdecode(encimg, 1),-1)
+            if self.quality_jpeg<100:
+                encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), self.quality_jpeg]
+                result, encimg = cv2.imencode('.jpg', myresultframe, encode_param)
+                myresultframe_compressed = np.mean(cv2.imdecode(encimg, 1),-1)
+            else:
+                myresultframe_compressed = myresultframe
             myresultframe_noisy[:,:,iframe] = myresultframe_compressed#nip.resample(myresultframe_compressed, [self.downscaling, self.downscaling])/self.downscaling
 
 
