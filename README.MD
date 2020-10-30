@@ -154,6 +154,10 @@ Reconstructed the result from the network:
 <img src="./IMAGES/mytest_gt-1.png" width="300">
 </p>
 
+## Disclaimer
+
+We cannot guarantee any warranty that this software is fully functional. Use it as your own risk. 
+The software was tested on a Mac Book Pro with Catalina, Windows 10 and Ubuntu 16.04 LTS machine equipped with an Nvidia GPU. 
 
 ## Citation
 empty
