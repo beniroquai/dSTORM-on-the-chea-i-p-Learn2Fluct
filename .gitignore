@@ -7,3 +7,4 @@
 *.meta
 convLSTM_predicttimeseries/upsamping_gpu0,1/models/10099_cpkt/checkpoint
 convLSTM_predicttimeseries/upsamping_gpu0,1/*
+TF2_KERAS/ISM/23.10.2020_800x600_HeLa_SiR_newSample_3.tif

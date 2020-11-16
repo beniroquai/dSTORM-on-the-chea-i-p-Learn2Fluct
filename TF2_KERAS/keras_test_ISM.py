@@ -65,7 +65,7 @@ n_pix_on = 1
 n_pix_off = 9
 n_shift = 1
 n_period = (n_pix_on+n_pix_off)//n_shift
-n_gauss_illu = 1
+n_gauss_illu = 2
 Ntime = n_period**2
 n_gauss_det = 1
 
@@ -96,15 +96,45 @@ elif platform == 'win32':
     #data_dir = base_dir+'data\\\\data_downconverted_4'; upscaling=4;
     #data_dir = base_dir+'data\\\\data_raw'; upscaling=1;
     data_dir = base_dir+'C:\\Users\\diederichbenedict\\Dropbox\\Dokumente\\Promotion\\PROJECTS\\STORMoChip\\PYTHON\\Learn2Fluct\\convLSTM_predicttimeseries\data\\data'; upscaling=2;
-    
+
 
 from tensorflow import keras
+
+# define the data generator
+training_generator = data.DataGenerator(data_dir, n_batch=Nbatch,
+                mysize=(Nx, Ny), n_time=Ntime, downscaling=upscaling, \
+                n_photons = n_photon, n_readnoise = 5, 
+                kernelsize=n_gauss_det, quality_jpeg=100,
+                export_type=export_type,
+                illumination_type = "ISM",
+                n_pix_on = n_pix_on,
+                n_pix_off = n_pix_off,
+                n_gauss_illu = n_gauss_illu, 
+                n_shift = n_shift)
+#%% test dataloader 
+i_testimage=np.random.randint(0,training_generator.nfiles)
+myX,myY = training_generator.__getitem2D__(i_testimage)
+# display images
+plt.subplot(131)
+plt.title('SR'), plt.imshow(np.squeeze(myY[0,]),cmap='gray'), plt.colorbar()
+plt.subplot(132)
+plt.title('mean'), plt.imshow(np.squeeze(np.mean(myX[0,],axis=(0,-1))),cmap='gray'), plt.colorbar()
+plt.subplot(133)
+plt.title('raw'), plt.imshow(np.squeeze(myX[0,0,:,:,0]),cmap='gray'), plt.colorbar()
+plt.show()
+tif.imsave('teststack.tif', np.squeeze(myX))
+plt.imshow(np.log(1+np.abs(nip.ft(np.squeeze(myX)[1,:,:]))))
+
 
 #%%
 model = keras.models.load_model('./ISM/test.hdf5')
 model.summary()
-myX_raw = np.float32(tif.imread('./ISM/2020_10_20_ISM_60x_NA1.tif'))
-myX_real = nip.resample(myX_raw,factors=(1,.6,.6))
+
+myfilename = './ISM/2020_10_20_ISM_60x_NA1.tif'
+myfilename = './ISM/23.10.2020_800x600_HeLa_SiR_newSample_3.tif'
+
+myX_raw = np.float32(tif.imread(myfilename))
+myX_real = nip.resample(myX_raw,factors=(1,.22,.22))
 myX_real = nip.extract(myX_real, (Ntime,Nx//2,Ny//2))
 myX_real = np.expand_dims(np.expand_dims(myX_real,0),-1)
 
@@ -115,15 +145,26 @@ myY_result = model.predict(myX_real, batch_size=Nbatch)
 if(myY_result.shape[0]==1): myY_result=np.reshape(myY_result,(Nx,Ny))
 
 plt.figure()
-plt.subplot(221)
+plt.subplot(231)
 plt.title('ISM'), plt.imshow(np.squeeze(myY_result), cmap='gray'), plt.colorbar()
-plt.subplot(222)
+plt.subplot(232)
 plt.title('Mean'), plt.imshow(np.squeeze(np.mean(myX_real[0,],axis=(0,-1))), cmap='gray'), plt.colorbar()#, plt.colorbar()
-plt.subplot(223)
+plt.subplot(233)
 plt.title('STDV'), plt.imshow(np.squeeze(np.std(myX_real[0,],axis=(0,-1))), cmap='gray'), plt.colorbar()#, plt.colorbar()
-plt.subplot(224)
-plt.title('RAW'), plt.imshow(np.squeeze(myX_real[:,4,:,:,0]), cmap='gray'), plt.colorbar()#, plt.colorbar()
+plt.subplot(234)
+plt.title('RAW ft'), plt.imshow(np.squeeze(myX_real[:,4,:,:,0]), cmap='gray'), plt.colorbar()#, plt.colorbar()
 plt.imshow(np.log(1+np.abs(nip.ft(np.squeeze(myX_real)[1,:,:]))))
+plt.subplot(235)
+plt.title('RAW'), plt.imshow(np.squeeze(myX_real[:,4,:,:,0]), cmap='gray'), plt.colorbar()#, plt.colorbar()
+plt.imshow(np.squeeze(myX_real)[1,:,:])
+plt.subplot(236)
+plt.title('RAW artificial '), plt.imshow(np.squeeze(myX_real[:,4,:,:,0]), cmap='gray'), plt.colorbar()#, plt.colorbar()
+plt.imshow(np.squeeze(myX[0,0,:,:,0]))
 
+
+plt.subplot(121)
+plt.title('RAW ft'), plt.imshow(np.squeeze(myX_real[:,4,:,:,0]), cmap='gray')#, plt.colorbar()
+plt.imshow(np.log(1+np.abs(nip.ft(np.squeeze(myX_real)[1,:,:]))))
+plt.subplot(122)
 plt.imshow(np.log(1+np.abs(nip.ft(np.squeeze(myX)[1,:,:]))))
 plt.show()

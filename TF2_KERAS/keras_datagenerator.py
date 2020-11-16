@@ -222,32 +222,46 @@ class DataGenerator(keras.utils.Sequence):
         # produce some SOFI data for the on-chip simulation
         # ---------------------------------------------------
 
+        # downsample data         
+        mysample_sub = cv2.resize(mysample, dsize=None, fx=1/self.downscaling, fy=1/self.downscaling)
+        
         # normalize the sample
-        mysample -= np.min(mysample)
-        mysample = mysample/np.max(mysample)*self.n_photons
+        #mysample_sub -= np.min(mysample_sub)
+        mysample_sub /= np.max(mysample_sub)
+       
+        # add random backround
+        mybackground = np.random.rand(mysample_sub.shape[0],mysample_sub.shape[1])>.99
+        mybackground = nip.gaussf(mybackground*1., 10)
+        mybackground -= np.min(mybackground)
+        mybackground /= np.max(mybackground)
+        mybackground *= np.random.randint(20,30)*0.01
+        
+        mysample_sub = np.array(mysample_sub) + mybackground
+        mysample_sub = mysample_sub/np.max(mysample_sub)*self.n_photons
 
         # allocate some memory
         myresultframe_noisy = np.zeros((self.mysize[0]//self.downscaling, self.mysize[1]//self.downscaling, self.n_time))
         myresultframe_clean = np.zeros((self.mysize[0]//self.downscaling, self.mysize[1]//self.downscaling, self.n_time))
         # iterate over all frames
 
-        # downsample data         
-        mysample_sub = cv2.resize(mysample, dsize=None, fx=1/self.downscaling, fy=1/self.downscaling)
-        
+        # randomize illumination pattern (?)
+        myilluorder = np.arange(0,self.n_time)
+        np.random.shuffle(myilluorder)
+
         for iframe in range(self.n_time):
             # generate illumination pattern by randomly selecting illumination frames
             if self.illumination_type == "TIRF":
                 myillutmp = self.myallilluframes[:,:,np.random.randint(0, self.n_time)]
             else:
                 # preserve order for ISM / SIM 
-                myillutmp = self.myallilluframes[:,:,iframe]
-
+                myillutmp = self.myallilluframes[:,:,myilluorder[iframe]]
 
             # illuminate the sample with the structured illumination    
             myresultframe = myillutmp*mysample_sub
             
             #myresultframe = nip.resample(myresultframe, [1/self.downscaling, 1/self.downscaling])/self.downscaling
             myresultframe -= np.min(myresultframe)# handle zeros
+
 
             myresultframe_clean[:,:,iframe] = (myresultframe) + np.random.randint(0,self.max_background) # add background
 
